@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "852943530423",
+    "project_id": "acadenocrm",
+    "storage_bucket": "acadenocrm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852943530423:android:520925ded6f8194d0fe032",
+        "android_client_info": {
+          "package_name": "com.example.acadeno_crm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfVwPd8JbmR7YJQG0h3-35t966Lj9t_zs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
