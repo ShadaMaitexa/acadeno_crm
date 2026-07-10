@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import '../../core/constants/app_colors.dart';
+import '../call_log/call_logs_screen.dart';
+import '../call_log/call_details_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
   const UserHomeScreen({super.key});
@@ -10,10 +14,171 @@ class UserHomeScreen extends StatefulWidget {
 class _UserHomeScreenState extends State<UserHomeScreen> {
   int _currentIndex = 2; // Home selected
 
+  Widget _buildPlaceholder(String title) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              title == 'Dashboard'
+                  ? Icons.grid_view
+                  : title == 'Tasks'
+                      ? Icons.task_alt_outlined
+                      : Icons.location_on_outlined,
+              size: 64,
+              color: AppColors.primary.withValues(alpha: 0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '$title Screen\n(Coming Soon)',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeBody() {
+    return Column(
+      children: [
+        // Top section with blue background and curve
+        ClipPath(
+          clipper: _CurveClipper(),
+          child: Container(
+            color: AppColors.primary,
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 16,
+              bottom: 50, // Space for the curve
+              left: 24,
+              right: 24,
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Icon(Icons.emoji_emotions_outlined, color: Colors.white, size: 28),
+                    const Icon(Icons.exit_to_app, color: Colors.white, size: 28),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Hi, Sameesha',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Cards List
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            children: [
+              _buildCard(
+                title: 'Hot leads',
+                subtitle: 'Prospects ready to close',
+                iconData: Icons.local_fire_department_outlined,
+                iconColor: Colors.redAccent,
+              ),
+              const SizedBox(height: 16),
+              _buildCard(
+                title: 'Follow ups',
+                subtitle: 'Leads waiting on a replay',
+                iconData: Icons.person_outline,
+                iconColor: AppColors.primary,
+                isSelected: true,
+              ),
+              const SizedBox(height: 16),
+              _buildCard(
+                title: 'Reminders',
+                subtitle: 'Task and callbacks due soon',
+                iconData: Icons.access_time,
+                iconColor: Colors.brown.shade400,
+              ),
+              const SizedBox(height: 16),
+              _buildCard(
+                title: 'College visits',
+                subtitle: 'Scheduled campus visits',
+                iconData: Icons.account_balance_outlined,
+                iconColor: Colors.blueGrey.shade800,
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  CallLogItem? _selectedLog;
+
+  Widget _buildBody() {
+    switch (_currentIndex) {
+      case 0:
+        return _buildPlaceholder('Dashboard');
+      case 1:
+        if (_selectedLog != null) {
+          return CallDetailsScreen(
+            log: _selectedLog!,
+            onBack: () {
+              setState(() {
+                _selectedLog = null;
+              });
+            },
+          );
+        }
+        return CallLogsScreen(
+          onBack: () {
+            setState(() {
+              _currentIndex = 2; // Home
+            });
+          },
+          onLogTap: (log) {
+            setState(() {
+              _selectedLog = log;
+            });
+          },
+        );
+      case 2:
+        return _buildHomeBody();
+      case 3:
+        return _buildPlaceholder('Tasks');
+      case 4:
+        return _buildPlaceholder('Visits');
+      default:
+        return _buildHomeBody();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F1F8), // Light background for the list
+      backgroundColor: AppColors.background, // Light background for the list
       bottomNavigationBar: ClipPath(
         clipper: _BottomNavClipper(),
         child: Container(
@@ -29,110 +194,36 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             backgroundColor: Colors.white,
             elevation: 0,
             type: BottomNavigationBarType.fixed,
-            selectedItemColor: const Color(0xFF3582CB),
+            selectedItemColor: AppColors.primary,
             unselectedItemColor: Colors.grey.shade600,
             selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
             unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.grid_view),
+                icon: Icon(LucideIcons.layoutGrid),
                 label: 'Dashboard',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.phone_in_talk_outlined),
+                icon: Icon(LucideIcons.phoneCall),
                 label: 'Call logs',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
+                icon: Icon(LucideIcons.home),
                 label: 'Home',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.task_alt_outlined),
+                icon: Icon(LucideIcons.listTodo),
                 label: 'Tasks',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.location_on_outlined),
+                icon: Icon(LucideIcons.mapPin),
                 label: 'Visits',
               ),
             ],
           ),
         ),
       ),
-      body: Column(
-        children: [
-          // Top section with blue background and curve
-          ClipPath(
-            clipper: _CurveClipper(),
-            child: Container(
-              color: const Color(0xFF3582CB),
-              width: double.infinity,
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 16,
-                bottom: 50, // Space for the curve
-                left: 24,
-                right: 24,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Icon(Icons.account_circle_outlined, color: Colors.white, size: 28),
-                      const Icon(Icons.logout, color: Colors.white, size: 28),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Hi, Sameesha',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Cards List
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              children: [
-                _buildCard(
-                  title: 'Hot leads',
-                  subtitle: 'Prospects ready to close',
-                  iconData: Icons.local_fire_department_outlined,
-                  iconColor: Colors.redAccent,
-                ),
-                const SizedBox(height: 16),
-                _buildCard(
-                  title: 'Follow ups',
-                  subtitle: 'Leads waiting on a replay',
-                  iconData: Icons.person_outline,
-                  iconColor: const Color(0xFF3582CB),
-                  isSelected: true,
-                ),
-                const SizedBox(height: 16),
-                _buildCard(
-                  title: 'Reminders',
-                  subtitle: 'Task and callbacks due soon',
-                  iconData: Icons.access_time,
-                  iconColor: Colors.brown.shade400,
-                ),
-                const SizedBox(height: 16),
-                _buildCard(
-                  title: 'College visits',
-                  subtitle: 'Scheduled campus visits',
-                  iconData: Icons.account_balance_outlined,
-                  iconColor: Colors.blueGrey.shade800,
-                ),
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
-        ],
-      ),
+      body: _buildBody(),
     );
   }
 
@@ -149,11 +240,11 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: isSelected
-            ? Border.all(color: const Color(0xFF3582CB), width: 2)
+            ? Border.all(color: AppColors.primary, width: 2)
             : Border.all(color: Colors.transparent, width: 2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
