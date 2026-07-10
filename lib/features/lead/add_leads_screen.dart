@@ -11,10 +11,34 @@ class AddLeadsScreen extends StatefulWidget {
 }
 
 class _AddLeadsScreenState extends State<AddLeadsScreen> {
-  final _nameController = TextEditingController(text: 'Sameesha');
-  final _phoneController = TextEditingController(text: '+91 8084455854');
-  final _emailController = TextEditingController(text: 'Sameesha@gmail.com');
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final _noteController = TextEditingController();
+  String _avatarLetter = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController.addListener(() {
+      final text = _nameController.text.trim();
+      final newLetter = text.isNotEmpty ? text[0].toUpperCase() : '';
+      if (_avatarLetter != newLetter) {
+        setState(() {
+          _avatarLetter = newLetter;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +77,18 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
+                  child: _avatarLetter.isNotEmpty
+                      ? Center(
+                          child: Text(
+                            _avatarLetter,
+                            style: const TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 48,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        )
+                      : null,
                 ),
               ),
               const SizedBox(height: 48),

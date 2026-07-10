@@ -3,6 +3,8 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../call_log/call_logs_screen.dart';
 import '../call_log/call_details_screen.dart';
+import '../lead/hot_leads_screen.dart';
+import '../lead/add_leads_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
   const UserHomeScreen({super.key});
@@ -13,6 +15,9 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
   int _currentIndex = 2; // Home selected
+  bool _showHotLeads = false;
+  bool _showAddLead = false;
+  String _selectedCard = 'Follow ups';
 
   Widget _buildPlaceholder(String title) {
     return Scaffold(
@@ -104,6 +109,20 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 subtitle: 'Prospects ready to close',
                 iconData: Icons.local_fire_department_outlined,
                 iconColor: Colors.redAccent,
+                isSelected: _selectedCard == 'Hot leads',
+                onTap: () {
+                  setState(() {
+                    _selectedCard = 'Hot leads';
+                    // Delaying navigation slightly allows the user to see the border change before transitioning
+                    Future.delayed(const Duration(milliseconds: 150), () {
+                      if (mounted) {
+                        setState(() {
+                          _showHotLeads = true;
+                        });
+                      }
+                    });
+                  });
+                },
               ),
               const SizedBox(height: 16),
               _buildCard(
@@ -111,7 +130,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 subtitle: 'Leads waiting on a replay',
                 iconData: Icons.person_outline,
                 iconColor: AppColors.primary,
-                isSelected: true,
+                isSelected: _selectedCard == 'Follow ups',
+                onTap: () {
+                  setState(() {
+                    _selectedCard = 'Follow ups';
+                  });
+                },
               ),
               const SizedBox(height: 16),
               _buildCard(
@@ -119,6 +143,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 subtitle: 'Task and callbacks due soon',
                 iconData: Icons.access_time,
                 iconColor: Colors.brown.shade400,
+                isSelected: _selectedCard == 'Reminders',
+                onTap: () {
+                  setState(() {
+                    _selectedCard = 'Reminders';
+                  });
+                },
               ),
               const SizedBox(height: 16),
               _buildCard(
@@ -126,6 +156,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 subtitle: 'Scheduled campus visits',
                 iconData: Icons.account_balance_outlined,
                 iconColor: Colors.blueGrey.shade800,
+                isSelected: _selectedCard == 'College visits',
+                onTap: () {
+                  setState(() {
+                    _selectedCard = 'College visits';
+                  });
+                },
               ),
               const SizedBox(height: 24),
             ],
@@ -165,6 +201,29 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           },
         );
       case 2:
+        if (_showAddLead) {
+          return AddLeadsScreen(
+            onBack: () {
+              setState(() {
+                _showAddLead = false;
+              });
+            },
+          );
+        }
+        if (_showHotLeads) {
+          return HotLeadsScreen(
+            onBack: () {
+              setState(() {
+                _showHotLeads = false;
+              });
+            },
+            onAdd: () {
+              setState(() {
+                _showAddLead = true;
+              });
+            },
+          );
+        }
         return _buildHomeBody();
       case 3:
         return _buildPlaceholder('Tasks');
@@ -233,9 +292,13 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     required IconData iconData,
     required Color iconColor,
     bool isSelected = false,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -281,6 +344,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             size: 32,
           ),
         ],
+      ),
       ),
     );
   }
