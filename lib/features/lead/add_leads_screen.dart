@@ -150,8 +150,16 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                 const SizedBox(height: 16),
                 Container(
                   decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12)),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        offset: const Offset(0, 4),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
                   child: TextFormField(
                     controller: _noteController,
                     maxLines: 5,
@@ -211,7 +219,16 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(12)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
+          ),
+        ],
+      ),
       child: TextFormField(
         controller: controller,
         keyboardType: keyboardType,

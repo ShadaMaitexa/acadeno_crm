@@ -28,21 +28,42 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
-      controller: controller,
-      obscureText: obscureText,
-      keyboardType: keyboardType,
-      validator: validator,
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(fontSize: 14, color: Colors.black38),
-        filled: true,
-        fillColor: const Color(0xFFEFF6FF),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        prefixIcon: icon != null ? Icon(icon, size: 20, color: Colors.black38) : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
-          borderSide: BorderSide.none,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            offset: const Offset(0, 4),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        validator: validator,
+        decoration: InputDecoration(
+          hintText: hintText,
+          hintStyle: const TextStyle(fontSize: 14, color: Colors.black38),
+          filled: true,
+          fillColor: Colors.transparent,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          prefixIcon: icon != null ? Icon(icon, size: 20, color: Colors.black38) : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20),
+            borderSide: BorderSide.none,
+          ),
         ),
       ),
     );
@@ -134,26 +155,47 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                       )
                     else
-                      DropdownButtonFormField<String>(
-                        initialValue: selectedRole,
-                        decoration: InputDecoration(
-                          hintText: 'Select Role',
-                          filled: true,
-                          fillColor: const Color(0xFFEFF6FF),
-                          prefixIcon: const Icon(Icons.badge_outlined,
-                              color: Colors.black38, size: 20),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              offset: const Offset(0, 4),
+                              blurRadius: 10,
+                            ),
+                          ],
                         ),
-                        items: roles
-                            .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                            .toList(),
-                        onChanged: (v) => selectedRole = v,
-                        validator: (v) => v == null ? 'Required' : null,
+                        child: DropdownButtonFormField<String>(
+                          initialValue: selectedRole,
+                          decoration: InputDecoration(
+                            hintText: 'Select Role',
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            prefixIcon: const Icon(Icons.badge_outlined,
+                                color: Colors.black38, size: 20),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          items: roles
+                              .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                              .toList(),
+                          onChanged: (v) => selectedRole = v,
+                          validator: (v) => v == null ? 'Required' : null,
+                        ),
                       ),
                     const SizedBox(height: 20),
                     ElevatedButton(
@@ -283,26 +325,47 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     ),
                     const SizedBox(height: 12),
                     if (roles.isNotEmpty)
-                      DropdownButtonFormField<String>(
-                        initialValue: selectedRole,
-                        decoration: InputDecoration(
-                          hintText: 'Select Role',
-                          filled: true,
-                          fillColor: const Color(0xFFEFF6FF),
-                          prefixIcon: const Icon(Icons.badge_outlined,
-                              color: Colors.black38, size: 20),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
-                            borderSide: BorderSide.none,
-                          ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              offset: const Offset(0, 4),
+                              blurRadius: 10,
+                            ),
+                          ],
                         ),
-                        items: roles
-                            .map((r) => DropdownMenuItem(value: r, child: Text(r)))
-                            .toList(),
-                        onChanged: (v) => selectedRole = v,
-                        validator: (v) => v == null ? 'Required' : null,
+                        child: DropdownButtonFormField<String>(
+                          initialValue: selectedRole,
+                          decoration: InputDecoration(
+                            hintText: 'Select Role',
+                            filled: true,
+                            fillColor: Colors.transparent,
+                            prefixIcon: const Icon(Icons.badge_outlined,
+                                color: Colors.black38, size: 20),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          items: roles
+                              .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                              .toList(),
+                          onChanged: (v) => selectedRole = v,
+                          validator: (v) => v == null ? 'Required' : null,
+                        ),
                       ),
                     const SizedBox(height: 20),
                     ElevatedButton(
@@ -652,36 +715,45 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 
   Widget _buildEmptyStaff() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.group_off_outlined, size: 80, color: Colors.grey.shade300),
-        const SizedBox(height: 24),
-        const Text('No Team Members\nFound',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87)),
-        const SizedBox(height: 8),
-        Text(
-          'Your staff list is empty. Add a new member\nto your team record!',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-        ),
-        const SizedBox(height: 24),
-        ElevatedButton.icon(
-          onPressed: _showAddUserDialog,
-          icon: const Icon(Icons.person_add_alt_1, color: Colors.white, size: 18),
-          label: const Text('Add New User',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            'assets/Background.png',
+            height: 250,
+            fit: BoxFit.contain,
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          const Text('No Team Members\nFound',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87)),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Text(
+              'Your staff list is empty. Ready to bring your team on board?',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+            ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: _showAddUserDialog,
+            icon: const Icon(Icons.person_add_alt_1, color: Colors.white, size: 18),
+            label: const Text('Add New User',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
