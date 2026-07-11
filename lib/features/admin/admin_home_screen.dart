@@ -113,7 +113,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       controller: nameCtrl,
                       hintText: 'Full Name',
                       icon: Icons.person_outline,
-                      validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Required';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return 'Invalid email';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildDialogTextField(
@@ -121,7 +125,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Email Address',
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Required';
+                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Invalid phone number';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildDialogTextField(
@@ -305,7 +313,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       controller: nameCtrl,
                       hintText: 'Full Name',
                       icon: Icons.person_outline,
-                      validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Required';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return 'Invalid email';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildDialogTextField(
@@ -313,7 +325,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Email Address',
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Required';
+                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Invalid phone number';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildDialogTextField(

@@ -137,15 +137,26 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                   icon: Icons.phone_outlined,
                   hint: 'Phone',
                   keyboardType: TextInputType.phone,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Phone is required' : null,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty) return 'Phone is required';
+                    if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Enter a valid 10-digit number';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 _buildField(
                   controller: _emailController,
                   icon: Icons.alternate_email,
-                  hint: 'Email',
+                  hint: 'Email (Optional)',
                   keyboardType: TextInputType.emailAddress,
+                  validator: (v) {
+                    if (v != null && v.trim().isNotEmpty) {
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) {
+                        return 'Enter a valid email';
+                      }
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16),
                 Container(
