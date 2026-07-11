@@ -15,17 +15,47 @@ class UserHomeScreen extends StatefulWidget {
   State<UserHomeScreen> createState() => _UserHomeScreenState();
 }
 
-class _UserHomeScreenState extends State<UserHomeScreen> {
+class _UserHomeScreenState extends State<UserHomeScreen>
+    with TickerProviderStateMixin {
   int _currentIndex = 2; // Home selected
   bool _showHotLeads = false;
   bool _showAddLead = false;
   String _selectedCard = 'Follow ups';
   String _userName = 'Hi';
 
+  late AnimationController _headerAnim;
+  late AnimationController _cardsAnim;
+  late Animation<double> _headerFade;
+  late Animation<Offset> _headerSlide;
+
   @override
   void initState() {
     super.initState();
+
+    _headerAnim = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 700));
+    _cardsAnim = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 600));
+
+    _headerFade = CurvedAnimation(parent: _headerAnim, curve: Curves.easeOut);
+    _headerSlide = Tween<Offset>(
+      begin: const Offset(0, -0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _headerAnim, curve: Curves.easeOutCubic));
+
+    _headerAnim.forward();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _cardsAnim.forward();
+    });
+
     _loadUserName();
+  }
+
+  @override
+  void dispose() {
+    _headerAnim.dispose();
+    _cardsAnim.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserName() async {
@@ -66,24 +96,35 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              title == 'Dashboard'
-                  ? Icons.grid_view
-                  : title == 'Tasks'
-                      ? Icons.task_alt_outlined
-                      : Icons.location_on_outlined,
-              size: 64,
-              color: AppColors.primary.withValues(alpha: 0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '$title Screen\n(Coming Soon)',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.grey,
-                fontWeight: FontWeight.bold,
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
               ),
+              child: Icon(
+                title == 'Dashboard'
+                    ? Icons.grid_view
+                    : title == 'Tasks'
+                        ? Icons.task_alt_outlined
+                        : Icons.location_on_outlined,
+                size: 40,
+                color: AppColors.primary.withValues(alpha: 0.5),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              title,
+              style: const TextStyle(
+                  fontSize: 20,
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Coming Soon',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ),
@@ -94,112 +135,246 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   Widget _buildHomeBody() {
     return Column(
       children: [
-        // Top section with blue background and curve
-        ClipPath(
-          clipper: _CurveClipper(),
-          child: Container(
-            color: AppColors.primary,
-            width: double.infinity,
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).padding.top + 16,
-              bottom: 50, // Space for the curve
-              left: 24,
-              right: 24,
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // ── Animated Header ──────────────────────────────────────────────────
+        FadeTransition(
+          opacity: _headerFade,
+          child: SlideTransition(
+            position: _headerSlide,
+            child: ClipPath(
+              clipper: _CurveClipper(),
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF2563B0), Color(0xFF3582CB)],
+                  ),
+                ),
+                width: double.infinity,
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top + 16,
+                  bottom: 56,
+                  left: 24,
+                  right: 24,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.emoji_emotions_outlined, color: Colors.white, size: 28),
-                    GestureDetector(
-                      onTap: _logout,
-                      child: const Icon(Icons.exit_to_app, color: Colors.white, size: 28),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.emoji_emotions_outlined,
+                              color: Colors.white, size: 22),
+                        ),
+                        GestureDetector(
+                          onTap: _logout,
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.exit_to_app,
+                                color: Colors.white, size: 22),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Hi, $_userName 👋',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'What would you like to do today?',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.80),
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
-                Text(
-                  'Hi, $_userName',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
-        // Cards List
+
+        // ── Animated Cards ───────────────────────────────────────────────────
         Expanded(
           child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
             children: [
-              _buildCard(
-                title: 'Hot leads',
+              _buildAnimatedCard(
+                index: 0,
+                title: 'Hot Leads',
                 subtitle: 'Prospects ready to close',
                 iconData: Icons.local_fire_department_outlined,
-                iconColor: Colors.redAccent,
+                iconColor: Colors.deepOrange,
+                iconBg: const Color(0xFFFFEDE5),
                 isSelected: _selectedCard == 'Hot leads',
                 onTap: () {
                   setState(() {
                     _selectedCard = 'Hot leads';
-                    // Delaying navigation slightly allows the user to see the border change before transitioning
                     Future.delayed(const Duration(milliseconds: 150), () {
-                      if (mounted) {
-                        setState(() {
-                          _showHotLeads = true;
-                        });
-                      }
+                      if (mounted) setState(() => _showHotLeads = true);
                     });
                   });
                 },
               ),
-              const SizedBox(height: 16),
-              _buildCard(
-                title: 'Follow ups',
-                subtitle: 'Leads waiting on a replay',
+              _buildAnimatedCard(
+                index: 1,
+                title: 'Follow Ups',
+                subtitle: 'Leads waiting on a reply',
                 iconData: Icons.person_outline,
                 iconColor: AppColors.primary,
+                iconBg: const Color(0xFFE6F1FB),
                 isSelected: _selectedCard == 'Follow ups',
-                onTap: () {
-                  setState(() {
-                    _selectedCard = 'Follow ups';
-                  });
-                },
+                onTap: () => setState(() => _selectedCard = 'Follow ups'),
               ),
-              const SizedBox(height: 16),
-              _buildCard(
+              _buildAnimatedCard(
+                index: 2,
                 title: 'Reminders',
-                subtitle: 'Task and callbacks due soon',
-                iconData: Icons.access_time,
-                iconColor: Colors.brown.shade400,
+                subtitle: 'Tasks and callbacks due soon',
+                iconData: Icons.access_time_rounded,
+                iconColor: const Color(0xFF7E5C54),
+                iconBg: const Color(0xFFF3EBE9),
                 isSelected: _selectedCard == 'Reminders',
-                onTap: () {
-                  setState(() {
-                    _selectedCard = 'Reminders';
-                  });
-                },
+                onTap: () => setState(() => _selectedCard = 'Reminders'),
               ),
-              const SizedBox(height: 16),
-              _buildCard(
-                title: 'College visits',
+              _buildAnimatedCard(
+                index: 3,
+                title: 'College Visits',
                 subtitle: 'Scheduled campus visits',
                 iconData: Icons.account_balance_outlined,
-                iconColor: Colors.blueGrey.shade800,
+                iconColor: const Color(0xFF37474F),
+                iconBg: const Color(0xFFECEFF1),
                 isSelected: _selectedCard == 'College visits',
-                onTap: () {
-                  setState(() {
-                    _selectedCard = 'College visits';
-                  });
-                },
+                onTap: () => setState(() => _selectedCard = 'College visits'),
               ),
               const SizedBox(height: 24),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildAnimatedCard({
+    required int index,
+    required String title,
+    required String subtitle,
+    required IconData iconData,
+    required Color iconColor,
+    required Color iconBg,
+    bool isSelected = false,
+    VoidCallback? onTap,
+  }) {
+    return AnimatedBuilder(
+      animation: _cardsAnim,
+      builder: (context, child) {
+        final delay = index * 0.15;
+        final t = (((_cardsAnim.value - delay) / (1.0 - delay)).clamp(0.0, 1.0));
+        final curved = Curves.easeOutCubic.transform(t);
+        return Opacity(
+          opacity: curved,
+          child: Transform.translate(
+            offset: Offset(0, 24 * (1 - curved)),
+            child: child,
+          ),
+        );
+      },
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: isSelected
+                ? Border.all(color: AppColors.primary, width: 2)
+                : Border.all(color: Colors.transparent, width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: isSelected
+                    ? AppColors.primary.withValues(alpha: 0.12)
+                    : Colors.black.withValues(alpha: 0.05),
+                blurRadius: isSelected ? 16 : 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? AppColors.primary.withValues(alpha: 0.12)
+                      : iconBg,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(iconData,
+                    color: isSelected ? AppColors.primary : iconColor,
+                    size: 26),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: isSelected ? AppColors.primary : Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black45,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              AnimatedRotation(
+                turns: isSelected ? 0 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: isSelected ? AppColors.primary : Colors.black26,
+                  size: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -223,7 +398,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
         return CallLogsScreen(
           onBack: () {
             setState(() {
-              _currentIndex = 2; // Home
+              _currentIndex = 2;
             });
           },
           onLogTap: (log) {
@@ -269,114 +444,69 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background, // Light background for the list
-      bottomNavigationBar: ClipPath(
-        clipper: _BottomNavClipper(),
-        child: Container(
+      backgroundColor: AppColors.background,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
           color: Colors.white,
-          padding: const EdgeInsets.only(top: 12), // Prevent clipping the icons
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: BottomNavigationBar(
             currentIndex: _currentIndex,
             onTap: (index) {
               setState(() {
                 _currentIndex = index;
+                if (index == 2) {
+                  _showHotLeads = false;
+                  _showAddLead = false;
+                  _selectedLog = null;
+                }
               });
             },
             backgroundColor: Colors.white,
             elevation: 0,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: AppColors.primary,
-            unselectedItemColor: Colors.grey.shade600,
-            selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
+            unselectedItemColor: Colors.grey.shade400,
+            selectedLabelStyle:
+                const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+            unselectedLabelStyle:
+                const TextStyle(fontWeight: FontWeight.w400, fontSize: 11),
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(LucideIcons.layoutGrid),
-                label: 'Dashboard',
-              ),
+                  icon: Icon(LucideIcons.layoutGrid), label: 'Dashboard'),
               BottomNavigationBarItem(
-                icon: Icon(LucideIcons.phoneCall),
-                label: 'Call logs',
-              ),
+                  icon: Icon(LucideIcons.phoneCall), label: 'Call logs'),
               BottomNavigationBarItem(
-                icon: Icon(LucideIcons.home),
-                label: 'Home',
-              ),
+                  icon: Icon(LucideIcons.home), label: 'Home'),
               BottomNavigationBarItem(
-                icon: Icon(LucideIcons.listTodo),
-                label: 'Tasks',
-              ),
+                  icon: Icon(LucideIcons.listTodo), label: 'Tasks'),
               BottomNavigationBarItem(
-                icon: Icon(LucideIcons.mapPin),
-                label: 'Visits',
-              ),
+                  icon: Icon(LucideIcons.mapPin), label: 'Visits'),
             ],
           ),
         ),
       ),
-      body: _buildBody(),
-    );
-  }
-
-  Widget _buildCard({
-    required String title,
-    required String subtitle,
-    required IconData iconData,
-    required Color iconColor,
-    bool isSelected = false,
-    VoidCallback? onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: isSelected
-            ? Border.all(color: AppColors.primary, width: 2)
-            : Border.all(color: Colors.transparent, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: Colors.black54,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          Icon(
-            iconData,
-            color: iconColor,
-            size: 32,
-          ),
-        ],
-      ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: child,
+        ),
+        child: KeyedSubtree(
+          key: ValueKey(_currentIndex),
+          child: _buildBody(),
+        ),
       ),
     );
   }
@@ -387,32 +517,9 @@ class _CurveClipper extends CustomClipper<Path> {
   Path getClip(Size size) {
     var path = Path();
     path.lineTo(0, size.height - 40);
-    // Control point and end point for quadratic bezier curve
     path.quadraticBezierTo(
-      size.width / 2, size.height + 20,
-      size.width, size.height - 40,
-    );
+        size.width / 2, size.height + 20, size.width, size.height - 40);
     path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class _BottomNavClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.moveTo(0, 15);
-    // Quadratic bezier to curve upward in the middle
-    path.quadraticBezierTo(
-      size.width / 2, -10,
-      size.width, 15,
-    );
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
     path.close();
     return path;
   }
