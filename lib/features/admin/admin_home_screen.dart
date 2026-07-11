@@ -636,7 +636,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   Text(isOnline ? 'Deactivate' : 'Activate'),
                 ]),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
                 child: Row(children: [
                   Icon(LucideIcons.trash2, size: 18, color: Colors.red),
@@ -691,7 +691,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget build(BuildContext context) {
     final tabs = [
       _buildStaffTab(),
-      const RolesScreen(),
+      RolesScreen(onLogout: _logout),
       _buildPlaceholder('Labels'),
       _buildPlaceholder('Analytics'),
     ];

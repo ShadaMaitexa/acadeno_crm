@@ -106,7 +106,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
 
     final entries = await DeviceCallLogService.getCallLogs(count: 200);
 
-    // Build display list and load any saved tags from Firestore in background
+   
     final items = entries.map((e) {
       final phone = _extractCallLogNumber(e);
       return CallLogItem.fromDevice(e, savedTag: _tagCache[phone]);
