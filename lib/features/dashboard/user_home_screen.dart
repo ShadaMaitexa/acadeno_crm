@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/auth_service.dart';
+import '../auth/login_screen.dart';
 import '../call_log/call_logs_screen.dart';
 import '../call_log/call_details_screen.dart';
 import '../lead/hot_leads_screen.dart';
@@ -18,6 +20,33 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   bool _showHotLeads = false;
   bool _showAddLead = false;
   String _selectedCard = 'Follow ups';
+  String _userName = 'Hi';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final profile = await AuthService.getUserProfile();
+    if (mounted && profile != null) {
+      setState(() {
+        _userName = profile['name'] as String? ?? 'Hi';
+      });
+    }
+  }
+
+  void _logout() async {
+    await AuthService.signOut();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (_) => false,
+      );
+    }
+  }
 
   Widget _buildPlaceholder(String title) {
     return Scaffold(
@@ -83,13 +112,16 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Icon(Icons.emoji_emotions_outlined, color: Colors.white, size: 28),
-                    const Icon(Icons.exit_to_app, color: Colors.white, size: 28),
+                    GestureDetector(
+                      onTap: _logout,
+                      child: const Icon(Icons.exit_to_app, color: Colors.white, size: 28),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Hi, Sameesha',
-                  style: TextStyle(
+                Text(
+                  'Hi, $_userName',
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 28,
                     fontWeight: FontWeight.bold,

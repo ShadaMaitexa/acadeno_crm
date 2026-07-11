@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/lead_service.dart';
 
 class HotLeadsScreen extends StatelessWidget {
   final VoidCallback onBack;
@@ -13,29 +15,6 @@ class HotLeadsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<Map<String, String>> leads = [
-      {
-        'name': '+91 7558804685',
-        'phone': '+91 7558804685',
-        'date': 'Jul 8, 9:49 AM • 11m 50s',
-      },
-      {
-        'name': '+91 7558804685',
-        'phone': '+91 7558804685',
-        'date': 'Jul 8, 9:48 AM • 0m 0s',
-      },
-      {
-        'name': 'Karshini Plus Two Basics',
-        'phone': '+91 9037424448',
-        'date': 'Jul 8, 8:21 AM • 0m 0s',
-      },
-      {
-        'name': '+91 6238445578',
-        'phone': '+91 6238445578',
-        'date': 'Jul 7, 6:46 PM • 3m 0s',
-      },
-    ];
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -48,15 +27,14 @@ class HotLeadsScreen extends StatelessWidget {
         title: const Text(
           'Hot leads',
           style: TextStyle(
-            color: Colors.black87,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+              color: Colors.black87,
+              fontWeight: FontWeight.bold,
+              fontSize: 18),
         ),
         centerTitle: true,
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 16.0),
+            padding: const EdgeInsets.only(right: 16),
             child: InkWell(
               onTap: onAdd,
               borderRadius: BorderRadius.circular(20),
@@ -72,18 +50,67 @@ class HotLeadsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: leads.length,
-        itemBuilder: (context, index) {
-          final lead = leads[index];
-          return _buildLeadCard(lead);
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: LeadService.leadsStream(type: 'hot'),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primary)),
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          final docs = snapshot.data?.docs ?? [];
+
+          if (docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.local_fire_department_outlined,
+                      size: 80, color: Colors.grey.shade300),
+                  const SizedBox(height: 16),
+                  const Text('No Hot Leads Yet',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87)),
+                  const SizedBox(height: 8),
+                  Text('Tap + to add your first lead.',
+                      style: TextStyle(
+                          fontSize: 13, color: Colors.grey.shade600)),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final doc = docs[index];
+              final data = doc.data();
+              return _buildLeadCard(context, doc.id, data);
+            },
+          );
         },
       ),
     );
   }
 
-  Widget _buildLeadCard(Map<String, String> lead) {
+  Widget _buildLeadCard(
+      BuildContext context, String id, Map<String, dynamic> data) {
+    final name = data['name'] as String? ?? 'Unknown';
+    final phone = data['phone'] as String? ?? '';
+    final ts = data['createdAt'] as Timestamp?;
+    final dateStr = ts != null
+        ? _formatDate(ts.toDate())
+        : '';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -102,7 +129,6 @@ class HotLeadsScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar
           Container(
             width: 44,
             height: 44,
@@ -110,12 +136,17 @@ class HotLeadsScreen extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Center(
-              child: Icon(Icons.person_outline, color: AppColors.primary),
+            child: Center(
+              child: Text(
+                name.isNotEmpty ? name[0].toUpperCase() : '?',
+                style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+              ),
             ),
           ),
           const SizedBox(width: 16),
-          // Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,39 +155,58 @@ class HotLeadsScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(
-                        lead['name']!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.black87,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      child: Text(name,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.black87),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis),
                     ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                    GestureDetector(
+                      onTap: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16)),
+                            title: const Text('Delete Lead',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            content: Text('Delete "$name"?'),
+                            actions: [
+                              TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(ctx, false),
+                                  child: const Text('Cancel')),
+                              TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(ctx, true),
+                                  child: const Text('Delete',
+                                      style:
+                                          TextStyle(color: Colors.red))),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          await LeadService.deleteLead(id);
+                        }
+                      },
+                      child: const Icon(Icons.delete_outline,
+                          color: Colors.redAccent, size: 20),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  lead['phone']!,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Colors.black54,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  lead['date']!,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
+                Text(phone,
+                    style: const TextStyle(
+                        fontSize: 13, color: Colors.black54)),
+                if (dateStr.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(dateStr,
+                      style: const TextStyle(
+                          fontSize: 12, color: Colors.grey)),
+                ],
                 const SizedBox(height: 16),
-                // Buttons
                 Row(
                   children: [
                     Expanded(
@@ -171,14 +221,11 @@ class HotLeadsScreen extends StatelessWidget {
                           children: [
                             Icon(Icons.call, color: AppColors.primary, size: 16),
                             SizedBox(width: 8),
-                            Text(
-                              'Call',
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
+                            Text('Call',
+                                style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13)),
                           ],
                         ),
                       ),
@@ -196,14 +243,11 @@ class HotLeadsScreen extends StatelessWidget {
                           children: [
                             Icon(Icons.chat, color: Colors.green, size: 16),
                             SizedBox(width: 8),
-                            Text(
-                              'WhatsApp',
-                              style: TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
-                              ),
-                            ),
+                            Text('WhatsApp',
+                                style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13)),
                           ],
                         ),
                       ),
@@ -216,5 +260,16 @@ class HotLeadsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDate(DateTime dt) {
+    const months = [
+      'Jan','Feb','Mar','Apr','May','Jun',
+      'Jul','Aug','Sep','Oct','Nov','Dec'
+    ];
+    final h = dt.hour > 12 ? dt.hour - 12 : dt.hour;
+    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
+    final m = dt.minute.toString().padLeft(2, '0');
+    return '${months[dt.month - 1]} ${dt.day}, $h:$m $ampm';
   }
 }
