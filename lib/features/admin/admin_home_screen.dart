@@ -7,6 +7,7 @@ import '../../core/services/auth_service.dart';
 import '../../core/services/role_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
 import '../auth/login_screen.dart';
+import 'labels_screen.dart';
 import 'roles_screen.dart';
 
 class AdminHomeScreen extends StatefulWidget {
@@ -51,8 +52,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           hintStyle: const TextStyle(fontSize: 14, color: Colors.black38),
           filled: true,
           fillColor: Colors.transparent,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          prefixIcon: icon != null ? Icon(icon, size: 20, color: Colors.black38) : null,
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          prefixIcon:
+              icon != null ? Icon(icon, size: 20, color: Colors.black38) : null,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide.none,
@@ -88,7 +91,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -103,7 +107,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Add New User',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
                         InkWell(
                             onTap: () => Navigator.pop(ctx),
                             child: const Icon(Icons.close, size: 20)),
@@ -115,7 +120,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Full Name',
                       icon: Icons.person_outline,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Name is required';
+                        if (v == null || v.trim().isEmpty)
+                          return 'Name is required';
                         return null;
                       },
                     ),
@@ -126,8 +132,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Email is required';
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return 'Invalid email';
+                        if (v == null || v.trim().isEmpty)
+                          return 'Email is required';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(v.trim())) return 'Invalid email';
                         return null;
                       },
                     ),
@@ -138,8 +146,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Phone is required';
-                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Enter a valid 10-digit number';
+                        if (v == null || v.trim().isEmpty)
+                          return 'Phone is required';
+                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim()))
+                          return 'Enter a valid 10-digit number';
                         return null;
                       },
                     ),
@@ -149,8 +159,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Password',
                       icon: Icons.lock_outline,
                       obscureText: true,
-                      validator: (v) =>
-                          (v == null || v.length < 6) ? 'Min 6 characters' : null,
+                      validator: (v) => (v == null || v.length < 6)
+                          ? 'Min 6 characters'
+                          : null,
                     ),
                     const SizedBox(height: 12),
                     if (roles.isEmpty)
@@ -163,7 +174,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                         child: const Text(
                           '⚠️ No roles found. Please add roles from the Roles tab first.',
-                          style: TextStyle(fontSize: 13, color: Colors.deepOrange),
+                          style:
+                              TextStyle(fontSize: 13, color: Colors.deepOrange),
                         ),
                       )
                     else
@@ -187,8 +199,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             fillColor: Colors.transparent,
                             prefixIcon: const Icon(Icons.badge_outlined,
                                 color: Colors.black38, size: 20),
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                               borderSide: BorderSide.none,
@@ -203,7 +215,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             ),
                           ),
                           items: roles
-                              .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                              .map((r) =>
+                                  DropdownMenuItem(value: r, child: Text(r)))
                               .toList(),
                           onChanged: (v) => selectedRole = v,
                           validator: (v) => v == null ? 'Required' : null,
@@ -229,7 +242,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
-                                        content: Text('User added successfully'),
+                                        content:
+                                            Text('User added successfully'),
                                         backgroundColor: Colors.green),
                                   );
                                 }
@@ -259,7 +273,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   color: Colors.white, strokeWidth: 2))
                           : const Text('Add User',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold, color: Colors.white)),
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
                     ),
                   ],
                 ),
@@ -291,7 +306,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDialogState) => Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           backgroundColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -306,7 +322,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Edit User',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
                         InkWell(
                             onTap: () => Navigator.pop(ctx),
                             child: const Icon(Icons.close, size: 20)),
@@ -318,7 +335,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Full Name',
                       icon: Icons.person_outline,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Name is required';
+                        if (v == null || v.trim().isEmpty)
+                          return 'Name is required';
                         return null;
                       },
                     ),
@@ -329,8 +347,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Email is required';
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return 'Invalid email';
+                        if (v == null || v.trim().isEmpty)
+                          return 'Email is required';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                            .hasMatch(v.trim())) return 'Invalid email';
                         return null;
                       },
                     ),
@@ -341,8 +361,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Phone is required';
-                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Enter a valid 10-digit number';
+                        if (v == null || v.trim().isEmpty)
+                          return 'Phone is required';
+                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim()))
+                          return 'Enter a valid 10-digit number';
                         return null;
                       },
                     ),
@@ -368,8 +390,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             fillColor: Colors.transparent,
                             prefixIcon: const Icon(Icons.badge_outlined,
                                 color: Colors.black38, size: 20),
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 12),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
                               borderSide: BorderSide.none,
@@ -384,7 +406,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             ),
                           ),
                           items: roles
-                              .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                              .map((r) =>
+                                  DropdownMenuItem(value: r, child: Text(r)))
                               .toList(),
                           onChanged: (v) => selectedRole = v,
                           validator: (v) => v == null ? 'Required' : null,
@@ -439,7 +462,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                                   color: Colors.white, strokeWidth: 2))
                           : const Text('Update User',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold, color: Colors.white)),
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white)),
                     ),
                   ],
                 ),
@@ -473,7 +497,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
               child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)));
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(AppColors.primary)));
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -482,7 +507,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         final docs = snapshot.data?.docs ?? [];
         final total = docs.length;
         final active = docs.where((d) => d.data()['status'] == 'active').length;
-        final offline = docs.where((d) => d.data()['status'] == 'offline').length;
+        final offline =
+            docs.where((d) => d.data()['status'] == 'offline').length;
 
         return Column(
           children: [
@@ -534,11 +560,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   right: 24,
                   child: Row(
                     children: [
-                      Expanded(child: _buildStatCard(total.toString(), 'Total Staff', Colors.blue)),
+                      Expanded(
+                          child: _buildStatCard(
+                              total.toString(), 'Total Staff', Colors.blue)),
                       const SizedBox(width: 10),
-                      Expanded(child: _buildStatCard(active.toString(), 'Active', Colors.green)),
+                      Expanded(
+                          child: _buildStatCard(
+                              active.toString(), 'Active', Colors.green)),
                       const SizedBox(width: 10),
-                      Expanded(child: _buildStatCard(offline.toString(), 'Offline', Colors.red)),
+                      Expanded(
+                          child: _buildStatCard(
+                              offline.toString(), 'Offline', Colors.red)),
                     ],
                   ),
                 ),
@@ -549,7 +581,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               child: docs.isEmpty
                   ? _buildEmptyStaff()
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 8),
                       itemCount: docs.length,
                       itemBuilder: (context, index) {
                         final doc = docs[index];
@@ -586,7 +619,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               Container(
                 width: 6,
                 height: 6,
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: dotColor, shape: BoxShape.circle),
               ),
               const SizedBox(width: 4),
               Text(value,
@@ -681,8 +715,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.grey),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onSelected: (value) async {
               if (value == 'edit') {
                 _showEditUserDialog(data);
@@ -705,7 +739,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               PopupMenuItem(
                 value: 'edit',
                 child: Row(children: [
-                  Icon(LucideIcons.pencil, size: 18, color: Colors.blue.shade600),
+                  Icon(LucideIcons.pencil,
+                      size: 18, color: Colors.blue.shade600),
                   const SizedBox(width: 8),
                   const Text('Edit'),
                 ]),
@@ -766,13 +801,16 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: _showAddUserDialog,
-            icon: const Icon(Icons.person_add_alt_1, color: Colors.white, size: 18),
+            icon: const Icon(Icons.person_add_alt_1,
+                color: Colors.white, size: 18),
             label: const Text('Add New User',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
             ),
           ),
         ],
@@ -787,7 +825,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     final tabs = [
       _buildStaffTab(),
       RolesScreen(onLogout: _logout),
-      _buildPlaceholder('Labels'),
+      const LabelsScreen(),
       _buildPlaceholder('Analytics'),
     ];
 
@@ -841,13 +879,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.construction_outlined,
-              size: 64,
-              color: AppColors.primary.withValues(alpha: 0.4)),
+              size: 64, color: AppColors.primary.withValues(alpha: 0.4)),
           const SizedBox(height: 16),
           Text('$title\n(Coming Soon)',
               textAlign: TextAlign.center,
               style: const TextStyle(
-                  fontSize: 18, color: Colors.grey, fontWeight: FontWeight.bold)),
+                  fontSize: 18,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.bold)),
         ],
       ),
     );

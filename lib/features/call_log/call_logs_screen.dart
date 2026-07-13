@@ -111,7 +111,6 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
       final phone = _extractCallLogNumber(e);
       return CallLogItem.fromDevice(e, savedTag: _tagCache[phone]);
     }).toList();
-
     if (mounted) {
       setState(() {
         _deviceLogs = items;
