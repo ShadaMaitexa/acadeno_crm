@@ -110,7 +110,9 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      widget.log.phoneNumber,
+                      widget.log.name.isNotEmpty && widget.log.name != 'Unknown'
+                          ? widget.log.name
+                          : widget.log.phoneNumber,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/auth_service.dart';
-import '../auth/login_screen.dart';
+import '../../shared/widgets/curve_clippers.dart';
+import '../auth/logout_screen.dart';
 import '../call_log/call_logs_screen.dart';
 import '../call_log/call_details_screen.dart';
 import '../lead/hot_leads_screen.dart';
@@ -67,15 +68,11 @@ class _UserHomeScreenState extends State<UserHomeScreen>
     }
   }
 
-  void _logout() async {
-    await AuthService.signOut();
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (_) => false,
-      );
-    }
+  void _logout() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const LogoutScreen()),
+    );
   }
 
   Widget _buildPlaceholder(String title) {
@@ -141,7 +138,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
           child: SlideTransition(
             position: _headerSlide,
             child: ClipPath(
-              clipper: _CurveClipper(),
+              clipper: TopCurveClipper(),
               child: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -287,7 +284,8 @@ class _UserHomeScreenState extends State<UserHomeScreen>
       animation: _cardsAnim,
       builder: (context, child) {
         final delay = index * 0.15;
-        final t = (((_cardsAnim.value - delay) / (1.0 - delay)).clamp(0.0, 1.0));
+        final t =
+            (((_cardsAnim.value - delay) / (1.0 - delay)).clamp(0.0, 1.0));
         final curved = Curves.easeOutCubic.transform(t);
         return Opacity(
           opacity: curved,
@@ -362,14 +360,10 @@ class _UserHomeScreenState extends State<UserHomeScreen>
                   ],
                 ),
               ),
-              AnimatedRotation(
-                turns: isSelected ? 0 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  color: isSelected ? AppColors.primary : Colors.black26,
-                  size: 14,
-                ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: isSelected ? AppColors.primary : Colors.black26,
+                size: 14,
               ),
             ],
           ),
@@ -512,18 +506,4 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   }
 }
 
-class _CurveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.lineTo(0, size.height - 40);
-    path.quadraticBezierTo(
-        size.width / 2, size.height + 20, size.width, size.height - 40);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
+// Curve clipper moved to shared/widgets/curve_clippers.dart

@@ -29,4 +29,13 @@ class AppColors {
 
   // Banners and Info containers
   static const Color infoBannerBg = Color(0xFFE3F2FD);
+
+  // Text colors
+  static const Color textDark = Color(0xFF1A1A2E);
+  static const Color textLight = Color(0xFF6B7280);
+  static const Color textMuted = Color(0xFF9CA3AF);
+
+  // Surface colors
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color cardShadow = Color(0x0D000000); // 5% black
 }

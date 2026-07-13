@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/role_service.dart';
+import '../../shared/widgets/curve_clippers.dart';
 
 class RolesScreen extends StatefulWidget {
   final VoidCallback onLogout;
@@ -310,7 +311,7 @@ class _RolesScreenState extends State<RolesScreen> {
               clipBehavior: Clip.none,
               children: [
                 ClipPath(
-                  clipper: _RolesCurveClipper(),
+                  clipper: TopCurveClipper(),
                   child: Container(
                     color: AppColors.primary,
                     width: double.infinity,
@@ -815,20 +816,5 @@ class _MemberAvatarsRow extends StatelessWidget {
   }
 }
 
-// ─── Curve Clipper ────────────────────────────────────────────────────────────
+// Curve clipper moved to shared/widgets/curve_clippers.dart
 
-class _RolesCurveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.lineTo(0, size.height - 40);
-    path.quadraticBezierTo(
-        size.width / 2, size.height + 20, size.width, size.height - 40);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}

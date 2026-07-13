@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/auth_service.dart';
+import '../../shared/widgets/curve_clippers.dart';
 import '../dashboard/user_home_screen.dart';
 import '../admin/admin_home_screen.dart';
 
@@ -262,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen>
           SlideTransition(
             position: _headerSlide,
             child: ClipPath(
-              clipper: _TopCurveClipper(),
+              clipper: TopCurveClipper(),
               child: Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -310,7 +311,7 @@ class _LoginScreenState extends State<LoginScreen>
               opacity: _formFade,
               child: SlideTransition(
                 position: _formSlide,
-                child: Padding(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 28),
                   child: Form(
                     key: _formKey,
@@ -345,6 +346,7 @@ class _LoginScreenState extends State<LoginScreen>
                               return null;
                             },
                             decoration: InputDecoration(
+                              hintText: 'Enter your email',
                               prefixIcon: const Icon(Icons.email_outlined, color: Colors.black38, size: 20),
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 14),
@@ -391,6 +393,7 @@ class _LoginScreenState extends State<LoginScreen>
                                 ? 'Please enter your password'
                                 : null,
                             decoration: InputDecoration(
+                              hintText: 'Enter your password',
                               prefixIcon: const Icon(Icons.lock_outline, color: Colors.black38, size: 20),
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 14),
@@ -483,7 +486,7 @@ class _LoginScreenState extends State<LoginScreen>
 
           // ── Bottom Curve Accent ──────────────────────────────────────────────
           ClipPath(
-            clipper: _BottomCurveClipper(),
+            clipper: BottomCurveClipper(),
             child: Container(
               color: AppColors.primary.withValues(alpha: 0.06),
               height: 90,
@@ -496,34 +499,5 @@ class _LoginScreenState extends State<LoginScreen>
   }
 }
 
-class _TopCurveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.lineTo(0, size.height - 40);
-    path.quadraticBezierTo(
-        size.width / 2, size.height + 20, size.width, size.height - 40);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
+// Clippers moved to shared/widgets/curve_clippers.dart
 
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class _BottomCurveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.moveTo(0, 40);
-    path.quadraticBezierTo(size.width / 2, -20, size.width, 40);
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}

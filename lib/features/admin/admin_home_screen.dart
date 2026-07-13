@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/services/admin_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../core/services/role_service.dart';
+import '../../shared/widgets/curve_clippers.dart';
 import '../auth/login_screen.dart';
 import 'roles_screen.dart';
 
@@ -114,8 +115,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Full Name',
                       icon: Icons.person_outline,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return 'Invalid email';
+                        if (v == null || v.trim().isEmpty) return 'Name is required';
                         return null;
                       },
                     ),
@@ -126,8 +126,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Invalid phone number';
+                        if (v == null || v.trim().isEmpty) return 'Email is required';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return 'Invalid email';
                         return null;
                       },
                     ),
@@ -137,7 +137,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Phone Number',
                       icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
-                      validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Phone is required';
+                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Enter a valid 10-digit number';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 12),
                     _buildDialogTextField(
@@ -176,7 +180,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           ],
                         ),
                         child: DropdownButtonFormField<String>(
-                          initialValue: selectedRole,
+                          value: selectedRole,
                           decoration: InputDecoration(
                             hintText: 'Select Role',
                             filled: true,
@@ -314,8 +318,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Full Name',
                       icon: Icons.person_outline,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return 'Invalid email';
+                        if (v == null || v.trim().isEmpty) return 'Name is required';
                         return null;
                       },
                     ),
@@ -326,8 +329,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
-                        if (v == null || v.trim().isEmpty) return 'Required';
-                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Invalid phone number';
+                        if (v == null || v.trim().isEmpty) return 'Email is required';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) return 'Invalid email';
                         return null;
                       },
                     ),
@@ -337,7 +340,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Phone Number',
                       icon: Icons.phone_outlined,
                       keyboardType: TextInputType.phone,
-                      validator: (v) => (v?.isEmpty ?? true) ? 'Required' : null,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty) return 'Phone is required';
+                        if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Enter a valid 10-digit number';
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 12),
                     if (roles.isNotEmpty)
@@ -354,7 +361,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           ],
                         ),
                         child: DropdownButtonFormField<String>(
-                          initialValue: selectedRole,
+                          value: selectedRole,
                           decoration: InputDecoration(
                             hintText: 'Select Role',
                             filled: true,
@@ -484,7 +491,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               clipBehavior: Clip.none,
               children: [
                 ClipPath(
-                  clipper: _CurveClipper(),
+                  clipper: TopCurveClipper(),
                   child: Container(
                     color: AppColors.primary,
                     width: double.infinity,
@@ -526,11 +533,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   left: 24,
                   right: 24,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildStatCard(total.toString(), 'Total Staff', Colors.blue),
-                      _buildStatCard(active.toString(), 'Active', Colors.green),
-                      _buildStatCard(offline.toString(), 'Offline', Colors.red),
+                      Expanded(child: _buildStatCard(total.toString(), 'Total Staff', Colors.blue)),
+                      const SizedBox(width: 10),
+                      Expanded(child: _buildStatCard(active.toString(), 'Active', Colors.green)),
+                      const SizedBox(width: 10),
+                      Expanded(child: _buildStatCard(offline.toString(), 'Offline', Colors.red)),
                     ],
                   ),
                 ),
@@ -558,7 +566,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   Widget _buildStatCard(String value, String label, Color dotColor) {
     return Container(
-      width: (MediaQuery.of(context).size.width - 80) / 3,
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -795,7 +802,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             )
           : null,
       bottomNavigationBar: ClipPath(
-        clipper: _BottomNavClipper(),
+        clipper: BottomNavCurveClipper(),
         child: Container(
           color: Colors.white,
           padding: const EdgeInsets.only(top: 12),
@@ -847,36 +854,4 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }
 }
 
-// ─── Clippers ────────────────────────────────────────────────────────────────
-
-class _CurveClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.lineTo(0, size.height - 40);
-    path.quadraticBezierTo(
-        size.width / 2, size.height + 20, size.width, size.height - 40);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class _BottomNavClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    var path = Path();
-    path.moveTo(0, 15);
-    path.quadraticBezierTo(size.width / 2, -10, size.width, 15);
-    path.lineTo(size.width, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
+// Clippers moved to shared/widgets/curve_clippers.dart

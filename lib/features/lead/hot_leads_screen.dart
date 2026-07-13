@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/lead_service.dart';
+import '../../shared/helpers/date_helpers.dart';
 
 class HotLeadsScreen extends StatelessWidget {
   final VoidCallback onBack;
@@ -64,7 +65,15 @@ class HotLeadsScreen extends StatelessWidget {
             return Center(child: Text('Error: ${snapshot.error}'));
           }
 
-          final docs = snapshot.data?.docs ?? [];
+          var docs = snapshot.data?.docs.toList() ?? [];
+          docs.sort((a, b) {
+            final aTs = a.data()['createdAt'] as Timestamp?;
+            final bTs = b.data()['createdAt'] as Timestamp?;
+            if (aTs == null && bTs == null) return 0;
+            if (aTs == null) return 1;
+            if (bTs == null) return -1;
+            return bTs.compareTo(aTs);
+          });
 
           if (docs.isEmpty) {
             return Center(
@@ -108,7 +117,7 @@ class HotLeadsScreen extends StatelessWidget {
     final phone = data['phone'] as String? ?? '';
     final ts = data['createdAt'] as Timestamp?;
     final dateStr = ts != null
-        ? _formatDate(ts.toDate())
+        ? DateHelpers.formatDateTime(ts.toDate())
         : '';
 
     return Container(
@@ -262,14 +271,5 @@ class HotLeadsScreen extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime dt) {
-    const months = [
-      'Jan','Feb','Mar','Apr','May','Jun',
-      'Jul','Aug','Sep','Oct','Nov','Dec'
-    ];
-    final h = dt.hour > 12 ? dt.hour - 12 : dt.hour;
-    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '${months[dt.month - 1]} ${dt.day}, $h:$m $ampm';
-  }
+  // Date formatting moved to shared/helpers/date_helpers.dart
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../shared/helpers/date_helpers.dart';
 
 enum CallLogPermissionStatus {
   unknown,
@@ -90,8 +91,6 @@ class DeviceCallLogService {
       case PermissionStatus.restricted:
       case PermissionStatus.limited:
         return CallLogPermissionStatus.denied;
-      default:
-        return CallLogPermissionStatus.unknown;
     }
   }
 
@@ -113,33 +112,11 @@ class DeviceCallLogService {
 
   /// Formats duration in seconds to "Xm Ys"
   static String formatDuration(int? seconds) {
-    if (seconds == null || seconds == 0) return '0m 0s';
-    final m = seconds ~/ 60;
-    final s = seconds % 60;
-    return '${m}m ${s}s';
+    return DateHelpers.formatDuration(seconds);
   }
 
   /// Formats a unix timestamp (ms) to a readable string
   static String formatTimestamp(int? timestamp) {
-    if (timestamp == null) return '';
-    final dt = DateTime.fromMillisecondsSinceEpoch(timestamp);
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    var h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
-    final min = dt.minute.toString().padLeft(2, '0');
-    return '${months[dt.month - 1]} ${dt.day}, $h:$min $ampm';
+    return DateHelpers.formatTimestamp(timestamp);
   }
 }

@@ -11,7 +11,7 @@ class LeadService {
   static Stream<QuerySnapshot<Map<String, dynamic>>> leadsStream({
     String? type,
   }) {
-    Query<Map<String, dynamic>> q = _db.collection('leads').orderBy('createdAt', descending: true);
+    Query<Map<String, dynamic>> q = _db.collection('leads');
     if (type != null) {
       q = q.where('type', isEqualTo: type);
     }

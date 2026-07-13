@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../core/services/auth_service.dart';
+import '../admin/admin_home_screen.dart';
+import '../dashboard/user_home_screen.dart';
 import 'login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -57,16 +60,41 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> _runSequence() async {
     await Future.delayed(const Duration(milliseconds: 200));
+    if (!mounted) return;
+
     await _logoController.forward();
+    if (!mounted) return;
+
     await Future.delayed(const Duration(milliseconds: 100));
+    if (!mounted) return;
+
     await _textController.forward();
+    if (!mounted) return;
+
     await Future.delayed(const Duration(milliseconds: 900));
+    if (!mounted) return;
+
     await _exitController.forward();
+    if (!mounted) return;
+
+    final currentUser = AuthService.currentUser;
+    final Widget destination;
+
+    if (currentUser == null) {
+      destination = const LoginScreen();
+    } else {
+      final profile = await AuthService.getUserProfile();
+      if (!mounted) return;
+      final role = (profile?['role'] as String?)?.toLowerCase();
+      destination =
+          role == 'admin' ? const AdminHomeScreen() : const UserHomeScreen();
+    }
+
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
-        pageBuilder: (_, __, ___) => const LoginScreen(),
+        pageBuilder: (_, __, ___) => destination,
         transitionDuration: const Duration(milliseconds: 600),
         transitionsBuilder: (_, anim, __, child) {
           return FadeTransition(opacity: anim, child: child);
