@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/label_service.dart';
+import '../../shared/widgets/curve_clippers.dart';
 
 class LabelsScreen extends StatefulWidget {
   const LabelsScreen({super.key});
@@ -54,8 +55,9 @@ class _LabelsScreenState extends State<LabelsScreen> {
         content: Text('Delete "$name"?'),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Delete', style: TextStyle(color: Colors.red)),
@@ -72,84 +74,108 @@ class _LabelsScreenState extends State<LabelsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: AppColors.background,
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: LabelService.labelsStream(),
         builder: (context, snapshot) {
           final docs = snapshot.data?.docs ?? [];
 
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(32),
-                    bottomRight: Radius.circular(32),
-                  ),
-                ),
-                padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top + 24,
-                  left: 24,
-                  right: 24,
-                  bottom: 24,
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Icon(Icons.account_circle_outlined,
-                            color: Colors.white, size: 28),
-                        const Icon(Icons.logout,
-                            color: Colors.white, size: 24),
-                      ],
+              // ── Curved blue header (same pattern as Staff / Roles) ─────────
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // Blue clipped background
+                  ClipPath(
+                    clipper: TopCurveClipper(),
+                    child: Container(
+                      color: AppColors.primary,
+                      width: double.infinity,
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top + 16,
+                        bottom: 72,
+                        left: 24,
+                        right: 24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Top row: profile  |  logout
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(Icons.account_circle_outlined,
+                                  color: Colors.white, size: 28),
+                              Icon(Icons.exit_to_app,
+                                  color: Colors.white, size: 28),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          // Greeting
+                          const Text(
+                            'Hii Admin',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    const Text('Hi! Admin',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 32),
-                    Row(
+                  ),
+
+                  // Add-label row floating over the curve bottom
+                  Positioned(
+                    bottom: -26,
+                    left: 24,
+                    right: 24,
+                    child: Row(
                       children: [
+                        // Text field
                         Expanded(
                           child: Container(
+                            height: 52,
                             decoration: BoxDecoration(
-                              color: Theme.of(context).cardColor,
-                              borderRadius: BorderRadius.circular(22),
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(28),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
+                                  color: Colors.black.withValues(alpha: 0.10),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 6),
                                 ),
                               ],
                             ),
                             child: TextField(
                               controller: _labelController,
                               onSubmitted: (_) => _addLabel(),
-                              decoration: InputDecoration(
-                                hintText: 'Add label',
-                                hintStyle: const TextStyle(
-                                    color: Colors.black38,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500),
-                                filled: true,
-                                fillColor: Theme.of(context).cardColor,
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(22)),
-                                  borderSide: BorderSide.none,
+                              style: const TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w500,
+                                color: Color(0xFF1A1A2E),
+                              ),
+                              decoration: const InputDecoration(
+                                hintText: 'Add Label',
+                                hintStyle: TextStyle(
+                                  color: Colors.black38,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w400,
                                 ),
+                                border: InputBorder.none,
                                 contentPadding: EdgeInsets.symmetric(
-                                    vertical: 18, horizontal: 20),
+                                    horizontal: 22, vertical: 16),
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+
+                        const SizedBox(width: 10),
+
+                        // + button
                         GestureDetector(
                           onTap: _isAdding ? null : _addLabel,
                           child: Container(
@@ -158,52 +184,67 @@ class _LabelsScreenState extends State<LabelsScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
+                              border:
+                                  Border.all(color: Colors.white, width: 2.5),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.12),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  blurRadius: 14,
+                                  offset: const Offset(0, 6),
                                 ),
                               ],
                             ),
-                            child: _isAdding 
+                            child: _isAdding
                                 ? const Padding(
-                                    padding: EdgeInsets.all(14.0),
-                                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                    padding: EdgeInsets.all(13.0),
+                                    child: CircularProgressIndicator(
+                                        color: Colors.white, strokeWidth: 2.5),
                                   )
-                                : const Icon(Icons.add, color: Colors.white),
+                                : const Icon(Icons.add,
+                                    color: Colors.white, size: 24),
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
+
+              // Space to clear the overlapping input row
+              const SizedBox(height: 44),
+
+              // ── Section title row ─────────────────────────────────────────
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('ACTIVE LABELS',
-                        style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.2,
-                            color: Colors.grey.shade500)),
                     Text(
-                      'TOTAL ${docs.length}',
+                      'ACTIVE LABELS',
                       style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade500,
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.w700),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.4,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
+                    if (docs.isNotEmpty)
+                      Text(
+                        'TOTAL  ${docs.length}',
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.4,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+
+              const SizedBox(height: 10),
+
+              // ── List / empty state ────────────────────────────────────────
               Expanded(
                 child: snapshot.connectionState == ConnectionState.waiting
                     ? const Center(
@@ -214,85 +255,17 @@ class _LabelsScreenState extends State<LabelsScreen> {
                     : snapshot.hasError
                         ? Center(child: Text('Error: ${snapshot.error}'))
                         : docs.isEmpty
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      width: 100,
-                                      height: 100,
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade100,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(Icons.label_off_outlined,
-                                          size: 40, color: Colors.black26),
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Text('No labels found!',
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context).textTheme.bodyLarge?.color)),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Add your first status label to get started.',
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey.shade600),
-                                    ),
-                                    const SizedBox(height: 60),
-                                  ],
-                                ),
-                              )
+                            ? _buildEmptyState()
                             : ListView.builder(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 24, vertical: 8),
+                                    horizontal: 16, vertical: 4),
                                 itemCount: docs.length,
                                 itemBuilder: (context, index) {
                                   final doc = docs[index];
                                   final data = doc.data();
                                   final labelName =
                                       data['name'] as String? ?? 'Unnamed';
-
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 20, vertical: 16),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).cardColor,
-                                      borderRadius: BorderRadius.circular(24),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.04),
-                                          blurRadius: 10,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(Icons.folder,
-                                            color: AppColors.primary, size: 24),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Text(labelName,
-                                              style: TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Theme.of(context).textTheme.bodyLarge?.color)),
-                                        ),
-                                        IconButton(
-                                          onPressed: () => _showDeleteDialog(
-                                              doc.id, labelName),
-                                          icon: const Icon(Icons.delete_outline,
-                                              size: 20, color: Colors.redAccent),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(),
-                                        ),
-                                      ],
-                                    ),
-                                  );
+                                  return _buildLabelCard(doc.id, labelName);
                                 },
                               ),
               ),
@@ -302,5 +275,108 @@ class _LabelsScreenState extends State<LabelsScreen> {
       ),
     );
   }
-}
 
+  // ── Label card ───────────────────────────────────────────────────────────────
+
+  Widget _buildLabelCard(String id, String name) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Folder icon container
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.folder_rounded,
+                color: AppColors.primary, size: 20),
+          ),
+
+          const SizedBox(width: 14),
+
+          // Label name
+          Expanded(
+            child: Text(
+              name,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF1A1A2E),
+              ),
+            ),
+          ),
+
+          // Delete icon
+          GestureDetector(
+            onTap: () => _showDeleteDialog(id, name),
+            child: Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.delete_outline,
+                  color: Colors.red.shade400, size: 18),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Empty state ──────────────────────────────────────────────────────────────
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 90,
+            height: 90,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade200,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.label_off_outlined,
+                size: 40, color: Colors.grey.shade400),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'No labels found',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF1A1A2E),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Add your first status label to get started.',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.grey.shade500,
+            ),
+          ),
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+}

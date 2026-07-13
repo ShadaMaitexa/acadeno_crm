@@ -325,18 +325,15 @@ class _RolesScreenState extends State<RolesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Top icons row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Icon(Icons.account_circle_outlined,
-                                color: Colors.white, size: 28),
-                            GestureDetector(
-                              onTap: widget.onLogout,
-                              child: const Icon(Icons.exit_to_app,
+                       Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(Icons.account_circle_outlined,
                                   color: Colors.white, size: 28),
-                            ),
-                          ],
-                        ),
+                              Icon(Icons.exit_to_app,
+                                  color: Colors.white, size: 28),
+                            ],
+                          ),
                         const SizedBox(height: 16),
                         const Text(
                           'Hii Admin',
