@@ -1,3 +1,4 @@
+import 'package:acadeno_crm/features/auth/logout_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
@@ -108,8 +109,12 @@ class _LabelsScreenState extends State<LabelsScreen> {
                             children: [
                               const Icon(Icons.account_circle_outlined,
                                   color: Colors.white, size: 28),
-                              Icon(Icons.exit_to_app,
-                                  color: Colors.white, size: 28),
+                              GestureDetector(
+                                onTap: () =>
+                                    showLogoutConfirmationDialog(context),
+                                child: const Icon(Icons.exit_to_app,
+                                    color: Colors.white, size: 28),
+                              ),
                             ],
                           ),
                           const SizedBox(height: 14),
@@ -130,7 +135,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
 
                   // Add-label row floating over the curve bottom
                   Positioned(
-                    bottom: -26,
+                    bottom: -15,
                     left: 24,
                     right: 24,
                     child: Row(
@@ -184,8 +189,6 @@ class _LabelsScreenState extends State<LabelsScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               shape: BoxShape.circle,
-                              border:
-                                  Border.all(color: Colors.white, width: 2.5),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.15),

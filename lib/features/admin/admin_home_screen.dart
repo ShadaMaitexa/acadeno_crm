@@ -3,10 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/admin_service.dart';
-import '../../core/services/auth_service.dart';
 import '../../core/services/role_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
-import '../auth/login_screen.dart';
+import '../auth/logout_screen.dart';
 import 'labels_screen.dart';
 import 'roles_screen.dart';
 
@@ -108,7 +107,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       children: [
                         Text('Add New User',
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color)),
                         InkWell(
                             onTap: () => Navigator.pop(ctx),
                             child: const Icon(Icons.close, size: 20)),
@@ -323,7 +327,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       children: [
                         Text('Edit User',
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color)),
                         InkWell(
                             onTap: () => Navigator.pop(ctx),
                             child: const Icon(Icons.close, size: 20)),
@@ -477,15 +486,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   // ─── Logout ─────────────────────────────────────────────────────────────────
 
-  void _logout() async {
-    await AuthService.signOut();
-    if (mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (_) => false,
-      );
-    }
+  void _logout() {
+    showLogoutConfirmationDialog(context);
   }
 
   // ─── Staff List Tab ─────────────────────────────────────────────────────────

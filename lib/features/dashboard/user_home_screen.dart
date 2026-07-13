@@ -69,10 +69,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   }
 
   void _logout() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const LogoutScreen()),
-    );
+    showLogoutConfirmationDialog(context);
   }
 
   Widget _buildPlaceholder(String title) {
@@ -345,7 +342,10 @@ class _UserHomeScreenState extends State<UserHomeScreen>
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: isSelected ? AppColors.primary : (Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
+                        color: isSelected
+                            ? AppColors.primary
+                            : (Theme.of(context).textTheme.bodyLarge?.color ??
+                                Colors.black87),
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -441,7 +441,8 @@ class _UserHomeScreenState extends State<UserHomeScreen>
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Theme.of(context).cardColor,
+          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor ??
+              Theme.of(context).cardColor,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -465,7 +466,9 @@ class _UserHomeScreenState extends State<UserHomeScreen>
                 }
               });
             },
-            backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Theme.of(context).cardColor,
+            backgroundColor:
+                Theme.of(context).bottomNavigationBarTheme.backgroundColor ??
+                    Theme.of(context).cardColor,
             elevation: 0,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: AppColors.primary,

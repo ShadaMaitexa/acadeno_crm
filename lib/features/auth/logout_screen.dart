@@ -3,6 +3,145 @@ import '../../core/constants/app_colors.dart';
 import '../../core/services/auth_service.dart';
 import 'login_screen.dart';
 
+Future<void> showLogoutConfirmationDialog(BuildContext context) async {
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  final navigator = Navigator.of(context);
+
+  await showDialog<void>(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      bool isLoading = false;
+
+      return StatefulBuilder(
+        builder: (context, setState) {
+          Future<void> confirmLogout() async {
+            if (isLoading) return;
+            setState(() => isLoading = true);
+
+            try {
+              await AuthService.signOut();
+              if (!dialogContext.mounted) return;
+              Navigator.of(dialogContext).pop();
+              if (navigator.mounted) {
+                navigator.pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  (_) => false,
+                );
+              }
+            } catch (e) {
+              if (dialogContext.mounted) {
+                Navigator.of(dialogContext).pop();
+              }
+              if (messenger != null && messenger.mounted) {
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Unable to log out. Please try again.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          }
+
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
+            ),
+            insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 70,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Icons.power_settings_new,
+                        size: 32,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Logout?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Are you sure you want to log out of your session?',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.black87,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isLoading ? null : confirmLogout,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
+                          : const Text(
+                              'Logout',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton(
+                    onPressed: isLoading
+                        ? null
+                        : () => Navigator.of(dialogContext).pop(),
+                    child: const Text(
+                      'Stay Logged In',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
 class LogoutScreen extends StatefulWidget {
   const LogoutScreen({super.key});
 
