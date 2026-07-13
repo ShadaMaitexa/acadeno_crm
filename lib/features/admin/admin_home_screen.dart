@@ -32,7 +32,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -93,7 +93,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         builder: (ctx, setDialogState) => Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -106,9 +106,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Add New User',
+                        Text('Add New User',
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
+                                fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
                         InkWell(
                             onTap: () => Navigator.pop(ctx),
                             child: const Icon(Icons.close, size: 20)),
@@ -181,7 +181,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     else
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
@@ -308,7 +308,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         builder: (ctx, setDialogState) => Dialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -321,9 +321,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Edit User',
+                        Text('Edit User',
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold)),
+                                fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
                         InkWell(
                             onTap: () => Navigator.pop(ctx),
                             child: const Icon(Icons.close, size: 20)),
@@ -372,7 +372,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     if (roles.isNotEmpty)
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
@@ -601,7 +601,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -654,7 +654,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -698,10 +698,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name,
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: Colors.black87)),
+                        color: Theme.of(context).textTheme.bodyLarge?.color)),
                 const SizedBox(height: 2),
                 Text(role,
                     style:
@@ -783,12 +783,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             fit: BoxFit.contain,
           ),
           const SizedBox(height: 16),
-          const Text('No Team Members\nFound',
+          Text('No Team Members\nFound',
               textAlign: TextAlign.center,
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87)),
+                  color: Theme.of(context).textTheme.bodyLarge?.color)),
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),

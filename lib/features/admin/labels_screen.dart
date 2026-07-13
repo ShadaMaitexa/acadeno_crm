@@ -72,7 +72,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: LabelService.labelsStream(),
         builder: (context, snapshot) {
@@ -117,7 +117,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(22),
                               boxShadow: [
                                 BoxShadow(
@@ -130,14 +130,14 @@ class _LabelsScreenState extends State<LabelsScreen> {
                             child: TextField(
                               controller: _labelController,
                               onSubmitted: (_) => _addLabel(),
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 hintText: 'Add label',
-                                hintStyle: TextStyle(
+                                hintStyle: const TextStyle(
                                     color: Colors.black38,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500),
                                 filled: true,
-                                fillColor: Colors.white,
+                                fillColor: Theme.of(context).cardColor,
                                 border: OutlineInputBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(22)),
@@ -222,18 +222,18 @@ class _LabelsScreenState extends State<LabelsScreen> {
                                       width: 100,
                                       height: 100,
                                       decoration: BoxDecoration(
-                                        color: Colors.grey.shade100,
+                                        color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade100,
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(Icons.label_off_outlined,
                                           size: 40, color: Colors.black26),
                                     ),
                                     const SizedBox(height: 20),
-                                    const Text('No labels found!',
+                                    Text('No labels found!',
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.black87)),
+                                            color: Theme.of(context).textTheme.bodyLarge?.color)),
                                     const SizedBox(height: 8),
                                     Text(
                                       'Add your first status label to get started.',
@@ -260,7 +260,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 20, vertical: 16),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: Theme.of(context).cardColor,
                                       borderRadius: BorderRadius.circular(24),
                                       boxShadow: [
                                         BoxShadow(
@@ -277,10 +277,10 @@ class _LabelsScreenState extends State<LabelsScreen> {
                                         const SizedBox(width: 16),
                                         Expanded(
                                           child: Text(labelName,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                   fontSize: 15,
                                                   fontWeight: FontWeight.w600,
-                                                  color: Colors.black87)),
+                                                  color: Theme.of(context).textTheme.bodyLarge?.color)),
                                         ),
                                         IconButton(
                                           onPressed: () => _showDeleteDialog(

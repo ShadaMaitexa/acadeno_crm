@@ -76,18 +76,18 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
           onPressed: widget.onBack,
         ),
-        title: const Text(
+        title: Text(
           'Add leads',
           style: TextStyle(
-              color: Colors.black87,
+              color: Theme.of(context).textTheme.titleLarge?.color,
               fontWeight: FontWeight.bold,
               fontSize: 18),
         ),
@@ -107,8 +107,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                   child: Container(
                     width: 100,
                     height: 100,
-                    decoration: const BoxDecoration(
-                        color: Colors.white, shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor, shape: BoxShape.circle),
                     child: _avatarLetter.isNotEmpty
                         ? Center(
                             child: Text(
@@ -119,8 +119,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                                   fontWeight: FontWeight.bold),
                             ),
                           )
-                        : const Icon(Icons.person_outline,
-                            size: 48, color: Colors.black26),
+                        : Icon(Icons.person_outline,
+                            size: 48, color: Theme.of(context).iconTheme.color?.withOpacity(0.3)),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -161,7 +161,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                 const SizedBox(height: 16),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
@@ -230,7 +230,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -246,10 +246,10 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
         style: const TextStyle(fontWeight: FontWeight.w600),
         validator: validator,
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.black54),
+          prefixIcon: Icon(icon, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
           hintText: hint,
-          hintStyle: const TextStyle(
-              color: Colors.black87,
+          hintStyle: TextStyle(
+              color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.5),
               fontWeight: FontWeight.bold,
               fontSize: 14),
           border: InputBorder.none,

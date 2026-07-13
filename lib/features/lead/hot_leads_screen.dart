@@ -17,18 +17,18 @@ class HotLeadsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
           onPressed: onBack,
         ),
-        title: const Text(
+        title: Text(
           'Hot leads',
           style: TextStyle(
-              color: Colors.black87,
+              color: Theme.of(context).textTheme.titleLarge?.color,
               fontWeight: FontWeight.bold,
               fontSize: 18),
         ),
@@ -83,11 +83,11 @@ class HotLeadsScreen extends StatelessWidget {
                   Icon(Icons.local_fire_department_outlined,
                       size: 80, color: Colors.grey.shade300),
                   const SizedBox(height: 16),
-                  const Text('No Hot Leads Yet',
+                  Text('No Hot Leads Yet',
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87)),
+                          color: Theme.of(context).textTheme.bodyLarge?.color)),
                   const SizedBox(height: 8),
                   Text('Tap + to add your first lead.',
                       style: TextStyle(
@@ -124,7 +124,7 @@ class HotLeadsScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
         boxShadow: [
@@ -165,10 +165,10 @@ class HotLeadsScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(name,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.black87),
+                              color: Theme.of(context).textTheme.bodyLarge?.color),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
                     ),
@@ -207,8 +207,8 @@ class HotLeadsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(phone,
-                    style: const TextStyle(
-                        fontSize: 13, color: Colors.black54)),
+                    style: TextStyle(
+                        fontSize: 13, color: Theme.of(context).textTheme.bodyMedium?.color)),
                 if (dateStr.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(dateStr,

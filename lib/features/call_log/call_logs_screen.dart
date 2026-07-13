@@ -259,28 +259,28 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
           onPressed: widget.onBack,
         ),
-        title: const Text('Call Logs',
+        title: Text('Call Logs',
             style: TextStyle(
-                color: Colors.black87,
+                color: Theme.of(context).textTheme.titleLarge?.color,
                 fontWeight: FontWeight.bold,
                 fontSize: 20)),
         actions: [
           if (_permStatus == CallLogPermissionStatus.granted)
             IconButton(
-              icon: const Icon(Icons.sim_card_outlined, color: Colors.black87),
+              icon: Icon(Icons.sim_card_outlined, color: Theme.of(context).iconTheme.color),
               onPressed: _showSIMSelectionDialog,
             ),
           if (_permStatus == CallLogPermissionStatus.granted)
             IconButton(
-              icon: const Icon(Icons.refresh, color: Colors.black87),
+              icon: Icon(Icons.refresh, color: Theme.of(context).iconTheme.color),
               onPressed: _loadDeviceLogs,
               tooltip: 'Refresh',
             ),
@@ -317,7 +317,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
         // SIM info banner
         Container(
           width: double.infinity,
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -333,7 +333,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                 const SizedBox(width: 8),
                 RichText(
                   text: TextSpan(
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                    style: TextStyle(fontSize: 14, color: Theme.of(context).textTheme.bodyLarge?.color),
                     children: [
                       const TextSpan(text: 'Showing logs for: '),
                       TextSpan(
@@ -375,7 +375,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   Widget _buildPermissionRequest() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
+        padding: EdgeInsets.symmetric(horizontal: 40),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -389,13 +389,13 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
               child: const Icon(Icons.phone_outlined,
                   size: 50, color: AppColors.primary),
             ),
-            const SizedBox(height: 32),
-            const Text(
+           SizedBox(height: 32),
+            Text(
               'Access Call History',
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87),
+                  color: Theme.of(context).textTheme.bodyLarge?.color),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -442,7 +442,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   Widget _buildDeniedState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40),
+        padding:EdgeInsets.symmetric(horizontal: 40),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -457,12 +457,12 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                   size: 50, color: Colors.orange),
             ),
             const SizedBox(height: 32),
-            const Text(
+            Text(
               'Permission Denied',
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87),
+                  color: Theme.of(context).textTheme.bodyLarge?.color),
             ),
             const SizedBox(height: 12),
             Text(
@@ -514,12 +514,12 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                   const Icon(Icons.block_outlined, size: 50, color: Colors.red),
             ),
             const SizedBox(height: 32),
-            const Text(
+            Text(
               'Permission Blocked',
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87),
+                  color: Theme.of(context).textTheme.bodyLarge?.color),
             ),
             const SizedBox(height: 12),
             Text(
@@ -570,12 +570,12 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
               child: const Icon(Icons.smartphone, size: 50, color: Colors.blue),
             ),
             const SizedBox(height: 32),
-            const Text(
+            Text(
               'Android Only Feature',
               style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87),
+                  color: Theme.of(context).textTheme.bodyLarge?.color),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -600,11 +600,11 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
         children: [
           Icon(Icons.phone_missed, size: 64, color: Colors.grey.shade300),
           const SizedBox(height: 16),
-          const Text('No Call Logs Found',
+          Text('No Call Logs Found',
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black54)),
+                  color: Theme.of(context).textTheme.bodyMedium?.color)),
           const SizedBox(height: 8),
           TextButton.icon(
             onPressed: _loadDeviceLogs,
@@ -650,7 +650,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -683,16 +683,16 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(log.name,
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87),
+                                  color: Theme.of(context).textTheme.bodyLarge?.color),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis),
                           const SizedBox(height: 4),
                           Text(log.phoneNumber,
-                              style: const TextStyle(
-                                  fontSize: 13, color: Colors.black54)),
+                              style: TextStyle(
+                                  fontSize: 13, color: Theme.of(context).textTheme.bodyMedium?.color)),
                           const SizedBox(height: 4),
                           Text(
                               '${log.dateTime}${log.duration.isNotEmpty && log.duration != '0m 0s' ? ' • ${log.duration}' : ''}',
@@ -702,7 +702,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.more_vert, color: Colors.black54),
+                      icon: Icon(Icons.more_vert, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       onPressed: () => _showOptionsMenu(log),
@@ -774,7 +774,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: BoxDecoration(
-          color: isSelected ? null : Colors.white,
+          color: isSelected ? null : Theme.of(context).cardColor,
           gradient: isSelected ? activeGradient : null,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(

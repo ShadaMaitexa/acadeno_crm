@@ -77,14 +77,14 @@ class _UserHomeScreenState extends State<UserHomeScreen>
 
   Widget _buildPlaceholder(String title) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.black87,
+          style: TextStyle(
+            color: Theme.of(context).textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -113,9 +113,9 @@ class _UserHomeScreenState extends State<UserHomeScreen>
             const SizedBox(height: 20),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 20,
-                  color: Colors.black87,
+                  color: Theme.of(context).textTheme.bodyLarge?.color,
                   fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
@@ -304,7 +304,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20),
             border: isSelected
                 ? Border.all(color: AppColors.primary, width: 2)
@@ -345,7 +345,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
-                        color: isSelected ? AppColors.primary : Colors.black87,
+                        color: isSelected ? AppColors.primary : (Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black87),
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -438,10 +438,10 @@ class _UserHomeScreenState extends State<UserHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Theme.of(context).cardColor,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -465,7 +465,7 @@ class _UserHomeScreenState extends State<UserHomeScreen>
                 }
               });
             },
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Theme.of(context).cardColor,
             elevation: 0,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: AppColors.primary,

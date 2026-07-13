@@ -38,9 +38,9 @@ class _RolesScreenState extends State<RolesScreen> {
               bottom: MediaQuery.of(ctx).viewInsets.bottom,
             ),
             child: Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
               ),
               child: SingleChildScrollView(
                 padding:
@@ -70,10 +70,10 @@ class _RolesScreenState extends State<RolesScreen> {
                         children: [
                           Text(
                             isEditing ? 'Edit Role' : 'Add New Role',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Theme.of(context).textTheme.bodyLarge?.color,
                             ),
                           ),
                           GestureDetector(
@@ -82,7 +82,7 @@ class _RolesScreenState extends State<RolesScreen> {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade100,
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade100,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.close,
@@ -209,7 +209,7 @@ class _RolesScreenState extends State<RolesScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -364,7 +364,7 @@ class _RolesScreenState extends State<RolesScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
@@ -496,7 +496,7 @@ class _RolesScreenState extends State<RolesScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -532,10 +532,10 @@ class _RolesScreenState extends State<RolesScreen> {
                     children: [
                       Text(
                         name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
                         ),
                       ),
                       if (desc.isNotEmpty) ...[
@@ -619,12 +619,12 @@ class _RolesScreenState extends State<RolesScreen> {
                   size: 50, color: Colors.grey.shade400),
             ),
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'No Roles Found',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: Theme.of(context).textTheme.bodyLarge?.color,
               ),
             ),
             const SizedBox(height: 12),
@@ -698,7 +698,7 @@ class _MemberAvatarsRow extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
+                    color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -747,10 +747,10 @@ class _MemberAvatarsRow extends StatelessWidget {
                           width: 30,
                           height: 30,
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
+                            color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade200,
                             shape: BoxShape.circle,
                             border:
-                                Border.all(color: Colors.white, width: 2),
+                                Border.all(color: Theme.of(context).cardColor, width: 2),
                           ),
                           child: Center(
                             child: Text(

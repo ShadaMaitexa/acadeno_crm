@@ -53,18 +53,18 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
           onPressed: widget.onBack,
         ),
-        title: const Text(
+        title: Text(
           'Call details',
           style: TextStyle(
-            color: Colors.black87,
+            color: Theme.of(context).textTheme.titleLarge?.color,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -81,7 +81,7 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -113,18 +113,18 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                       widget.log.name.isNotEmpty && widget.log.name != 'Unknown'
                           ? widget.log.name
                           : widget.log.phoneNumber,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                        color: Theme.of(context).textTheme.bodyLarge?.color,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       widget.log.phoneNumber,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: Colors.black54,
+                        color: Theme.of(context).textTheme.bodyMedium?.color,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -193,7 +193,7 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -214,11 +214,11 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Deal Status',
                           style: TextStyle(
                             fontSize: 11,
-                            color: Colors.black54,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -255,7 +255,7 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                 height: 120,
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -268,9 +268,9 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 12.0),
-                      child: Icon(Icons.insert_drive_file_outlined, color: Colors.black54, size: 24),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: Icon(Icons.insert_drive_file_outlined, color: Theme.of(context).iconTheme.color?.withOpacity(0.5), size: 24),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
