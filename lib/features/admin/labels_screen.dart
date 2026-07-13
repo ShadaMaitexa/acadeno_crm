@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/label_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
+import 'admin_profile_screen.dart';
 
 class LabelsScreen extends StatefulWidget {
   const LabelsScreen({super.key});
@@ -107,8 +108,19 @@ class _LabelsScreenState extends State<LabelsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Icon(Icons.account_circle_outlined,
-                                  color: Colors.white, size: 28),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const AdminProfileScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Icon(Icons.account_circle_outlined,
+                                    color: Colors.white, size: 28),
+                              ),
                               GestureDetector(
                                 onTap: () =>
                                     showLogoutConfirmationDialog(context),

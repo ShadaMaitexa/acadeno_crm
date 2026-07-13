@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/lead_service.dart';
+import '../../shared/widgets/app_ui_widgets.dart';
 
 class AddLeadsScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -56,16 +57,16 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Lead added successfully!'),
-              backgroundColor: Colors.green),
+            content: Text('Lead added successfully!'),
+            backgroundColor: Colors.green,
+          ),
         );
         widget.onBack();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -76,185 +77,107 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: AppColors.background,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
           onPressed: widget.onBack,
         ),
-        title: Text(
+        title: const Text(
           'Add leads',
           style: TextStyle(
-              color: Theme.of(context).textTheme.titleLarge?.color,
-              fontWeight: FontWeight.bold,
-              fontSize: 18),
+            color: AppColors.textDark,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
-        centerTitle: true,
       ),
       body: SafeArea(
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 16),
                 Center(
                   child: Container(
-                    width: 100,
-                    height: 100,
+                    width: 90,
+                    height: 90,
                     decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor, shape: BoxShape.circle),
+                      color: const Color(0xFFF5F7FA),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFFE8ECF0)),
+                    ),
                     child: _avatarLetter.isNotEmpty
                         ? Center(
                             child: Text(
                               _avatarLetter,
                               style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 48,
-                                  fontWeight: FontWeight.bold),
+                                color: AppColors.primary,
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           )
-                        : Icon(Icons.person_outline,
-                            size: 48, color: Theme.of(context).iconTheme.color?.withOpacity(0.3)),
+                        : const Icon(Icons.person_outline,
+                            size: 40, color: Colors.grey),
                   ),
                 ),
-                const SizedBox(height: 32),
-                _buildField(
+                const SizedBox(height: 28),
+                buildFormField(
+                  context: context,
                   controller: _nameController,
-                  icon: Icons.person_outline,
                   hint: 'Name',
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+                  icon: Icons.person_outline,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Name is required'
+                      : null,
                 ),
-                const SizedBox(height: 16),
-                _buildField(
+                const SizedBox(height: 14),
+                buildFormField(
+                  context: context,
                   controller: _phoneController,
-                  icon: Icons.phone_outlined,
                   hint: 'Phone',
+                  icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Phone is required';
-                    if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) return 'Enter a valid 10-digit number';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                _buildField(
-                  controller: _emailController,
-                  icon: Icons.alternate_email,
-                  hint: 'Email (Optional)',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) {
-                    if (v != null && v.trim().isNotEmpty) {
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(v.trim())) {
-                        return 'Enter a valid email';
-                      }
+                    if (v == null || v.trim().isEmpty) {
+                      return 'Phone is required';
+                    }
+                    if (!RegExp(r'^\d{10}$').hasMatch(v.trim())) {
+                      return 'Enter a valid 10-digit number';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        offset: const Offset(0, 4),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: TextFormField(
-                    controller: _noteController,
-                    maxLines: 5,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                    decoration: const InputDecoration(
-                      prefixIcon: Padding(
-                        padding: EdgeInsets.only(bottom: 80),
-                        child: Icon(Icons.description_outlined,
-                            color: Colors.black54),
-                      ),
-                      hintText: 'Enter additional notes (optional)',
-                      hintStyle:
-                          TextStyle(color: Colors.black54, fontSize: 13),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 20),
-                    ),
-                  ),
+                const SizedBox(height: 14),
+                buildFormField(
+                  context: context,
+                  controller: _emailController,
+                  hint: 'Email',
+                  icon: Icons.email_outlined,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 14),
+                buildFormField(
+                  context: context,
+                  controller: _noteController,
+                  hint: 'Interest/Additional Notes',
+                  icon: Icons.notes_outlined,
+                  maxLines: 4,
                 ),
                 const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: _loading ? null : _save,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    elevation: 0,
-                  ),
-                  child: _loading
-                      ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(
-                              color: Colors.white, strokeWidth: 2.5))
-                      : const Text('Save',
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
+                buildPrimaryButton(
+                  label: 'Save',
+                  loading: _loading,
+                  onPressed: _save,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildField({
-    required TextEditingController controller,
-    required IconData icon,
-    required String hint,
-    TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, 4),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-        validator: validator,
-        decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
-          hintText: hint,
-          hintStyle: TextStyle(
-              color: Theme.of(context).textTheme.bodyLarge?.color?.withOpacity(0.5),
-              fontWeight: FontWeight.bold,
-              fontSize: 14),
-          border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
       ),
     );

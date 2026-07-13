@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Acadeno CRM',
+      title: 'Acadena',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
       theme: ThemeData(
@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.light,
         ),
         useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.background,
         textTheme: GoogleFonts.interTextTheme(ThemeData.light().textTheme),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {

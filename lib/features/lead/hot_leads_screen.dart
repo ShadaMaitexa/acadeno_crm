@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/lead_service.dart';
-import '../../shared/helpers/date_helpers.dart';
+import '../../shared/widgets/app_ui_widgets.dart';
 
-class HotLeadsScreen extends StatelessWidget {
+class HotLeadsScreen extends StatefulWidget {
   final VoidCallback onBack;
   final VoidCallback onAdd;
 
@@ -15,32 +15,45 @@ class HotLeadsScreen extends StatelessWidget {
   });
 
   @override
+  State<HotLeadsScreen> createState() => _HotLeadsScreenState();
+}
+
+class _HotLeadsScreenState extends State<HotLeadsScreen> {
+  final _searchController = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: AppColors.background,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
-          onPressed: onBack,
+          icon: const Icon(Icons.arrow_back, color: AppColors.textDark),
+          onPressed: widget.onBack,
         ),
-        title: Text(
+        title: const Text(
           'Hot leads',
           style: TextStyle(
-              color: Theme.of(context).textTheme.titleLarge?.color,
-              fontWeight: FontWeight.bold,
-              fontSize: 18),
+            color: AppColors.textDark,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
-        centerTitle: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
-            child: InkWell(
-              onTap: onAdd,
-              borderRadius: BorderRadius.circular(20),
+            child: GestureDetector(
+              onTap: widget.onAdd,
               child: Container(
-                padding: const EdgeInsets.all(8),
+                width: 36,
+                height: 36,
                 decoration: const BoxDecoration(
                   color: AppColors.primary,
                   shape: BoxShape.circle,
@@ -51,62 +64,77 @@ class HotLeadsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-        stream: LeadService.leadsStream(type: 'hot'),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(AppColors.primary)),
-            );
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
+      body: Column(
+        children: [
+          AppSearchBar(
+            controller: _searchController,
+            hint: 'Search',
+            onChanged: (v) => setState(() => _query = v.toLowerCase()),
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+              stream: LeadService.leadsStream(type: 'hot'),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    ),
+                  );
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
 
-          var docs = snapshot.data?.docs.toList() ?? [];
-          docs.sort((a, b) {
-            final aTs = a.data()['createdAt'] as Timestamp?;
-            final bTs = b.data()['createdAt'] as Timestamp?;
-            if (aTs == null && bTs == null) return 0;
-            if (aTs == null) return 1;
-            if (bTs == null) return -1;
-            return bTs.compareTo(aTs);
-          });
+                var docs = snapshot.data?.docs.toList() ?? [];
+                if (_query.isNotEmpty) {
+                  docs = docs.where((d) {
+                    final data = d.data();
+                    final name =
+                        (data['name'] as String? ?? '').toLowerCase();
+                    final phone =
+                        (data['phone'] as String? ?? '').toLowerCase();
+                    final notes =
+                        (data['notes'] as String? ?? '').toLowerCase();
+                    return name.contains(_query) ||
+                        phone.contains(_query) ||
+                        notes.contains(_query);
+                  }).toList();
+                }
 
-          if (docs.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.local_fire_department_outlined,
-                      size: 80, color: Colors.grey.shade300),
-                  const SizedBox(height: 16),
-                  Text('No Hot Leads Yet',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).textTheme.bodyLarge?.color)),
-                  const SizedBox(height: 8),
-                  Text('Tap + to add your first lead.',
-                      style: TextStyle(
-                          fontSize: 13, color: Colors.grey.shade600)),
-                ],
-              ),
-            );
-          }
+                if (docs.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.local_fire_department_outlined,
+                            size: 64, color: Colors.grey.shade300),
+                        const SizedBox(height: 16),
+                        const Text('No Hot Leads Yet',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text('Tap + to add your first lead.',
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey.shade600)),
+                      ],
+                    ),
+                  );
+                }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: docs.length,
-            itemBuilder: (context, index) {
-              final doc = docs[index];
-              final data = doc.data();
-              return _buildLeadCard(context, doc.id, data);
-            },
-          );
-        },
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final doc = docs[index];
+                    return _buildLeadCard(context, doc.id, doc.data());
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -115,161 +143,114 @@ class HotLeadsScreen extends StatelessWidget {
       BuildContext context, String id, Map<String, dynamic> data) {
     final name = data['name'] as String? ?? 'Unknown';
     final phone = data['phone'] as String? ?? '';
-    final ts = data['createdAt'] as Timestamp?;
-    final dateStr = ts != null
-        ? DateHelpers.formatDateTime(ts.toDate())
-        : '';
+    final notes = data['notes'] as String? ?? '';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.1)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Center(
-              child: Text(
-                name.isNotEmpty ? name[0].toUpperCase() : '?',
-                style: const TextStyle(
-                    color: AppColors.primary,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  phone.isNotEmpty ? phone : name,
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    fontSize: 18),
+                    fontSize: 16,
+                    color: AppColors.textDark,
+                  ),
+                ),
               ),
-            ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.hotLeads.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'Hot',
+                  style: TextStyle(
+                    color: AppColors.hotLeads,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(name,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Theme.of(context).textTheme.bodyLarge?.color),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis),
-                    ),
-                    GestureDetector(
-                      onTap: () async {
-                        final confirm = await showDialog<bool>(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16)),
-                            title: const Text('Delete Lead',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            content: Text('Delete "$name"?'),
-                            actions: [
-                              TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(ctx, false),
-                                  child: const Text('Cancel')),
-                              TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(ctx, true),
-                                  child: const Text('Delete',
-                                      style:
-                                          TextStyle(color: Colors.red))),
-                            ],
-                          ),
-                        );
-                        if (confirm == true) {
-                          await LeadService.deleteLead(id);
-                        }
-                      },
-                      child: const Icon(Icons.delete_outline,
-                          color: Colors.redAccent, size: 20),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(phone,
-                    style: TextStyle(
-                        fontSize: 13, color: Theme.of(context).textTheme.bodyMedium?.color)),
-                if (dateStr.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(dateStr,
-                      style: const TextStyle(
-                          fontSize: 12, color: Colors.grey)),
-                ],
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.call, color: AppColors.primary, size: 16),
-                            SizedBox(width: 8),
-                            Text('Call',
-                                style: TextStyle(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13)),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.chat, color: Colors.green, size: 16),
-                            SizedBox(width: 8),
-                            Text('WhatsApp',
-                                style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          if (notes.isNotEmpty || name.isNotEmpty) ...[
+            const SizedBox(height: 6),
+            Text(
+              notes.isNotEmpty ? notes : name,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
+          ],
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _actionButton(
+                  label: 'Call',
+                  icon: Icons.call,
+                  color: AppColors.primary,
+                  bg: AppColors.callOutgoingBg,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _actionButton(
+                  label: 'WhatsApp',
+                  icon: Icons.chat,
+                  color: const Color(0xFF25D366),
+                  bg: const Color(0xFFE8F8F0),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  // Date formatting moved to shared/helpers/date_helpers.dart
+  Widget _actionButton({
+    required String label,
+    required IconData icon,
+    required Color color,
+    required Color bg,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 6),
+          Text(label,
+              style: TextStyle(
+                  color: color, fontWeight: FontWeight.bold, fontSize: 13)),
+        ],
+      ),
+    );
+  }
 }

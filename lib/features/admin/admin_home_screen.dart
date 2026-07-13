@@ -4,8 +4,10 @@ import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/admin_service.dart';
 import '../../core/services/role_service.dart';
+import '../../shared/widgets/app_ui_widgets.dart';
 import '../../shared/widgets/curve_clippers.dart';
 import '../auth/logout_screen.dart';
+import 'admin_profile_screen.dart';
 import 'labels_screen.dart';
 import 'roles_screen.dart';
 
@@ -534,8 +536,18 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Icon(Icons.account_circle_outlined,
-                                color: Colors.white, size: 28),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AdminProfileScreen(),
+                                  ),
+                                );
+                              },
+                              child: const Icon(Icons.account_circle_outlined,
+                                  color: Colors.white, size: 28),
+                            ),
                             GestureDetector(
                               onTap: _logout,
                               child: const Icon(Icons.exit_to_app,
@@ -545,7 +557,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'Hii Admin',
+                          'Hi Admin',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,

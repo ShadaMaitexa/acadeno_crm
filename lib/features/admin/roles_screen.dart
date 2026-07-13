@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/role_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
+import 'admin_profile_screen.dart';
 
 class RolesScreen extends StatefulWidget {
   final VoidCallback onLogout;
@@ -40,7 +41,8 @@ class _RolesScreenState extends State<RolesScreen> {
             child: Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(28)),
               ),
               child: SingleChildScrollView(
                 padding:
@@ -73,7 +75,8 @@ class _RolesScreenState extends State<RolesScreen> {
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Theme.of(context).textTheme.bodyLarge?.color,
+                              color:
+                                  Theme.of(context).textTheme.bodyLarge?.color,
                             ),
                           ),
                           GestureDetector(
@@ -82,7 +85,10 @@ class _RolesScreenState extends State<RolesScreen> {
                               width: 32,
                               height: 32,
                               decoration: BoxDecoration(
-                                color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade100,
+                                color: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? Colors.grey.shade800
+                                    : Colors.grey.shade100,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(Icons.close,
@@ -241,8 +247,7 @@ class _RolesScreenState extends State<RolesScreen> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide:
-                const BorderSide(color: AppColors.primary, width: 1.5),
+            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
           ),
         ),
       ),
@@ -255,8 +260,7 @@ class _RolesScreenState extends State<RolesScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Delete Role',
             style: TextStyle(fontWeight: FontWeight.bold)),
         content: Text(
@@ -264,8 +268,8 @@ class _RolesScreenState extends State<RolesScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel',
-                style: TextStyle(color: Colors.grey.shade600)),
+            child:
+                Text('Cancel', style: TextStyle(color: Colors.grey.shade600)),
           ),
           TextButton(
             onPressed: () async {
@@ -284,8 +288,8 @@ class _RolesScreenState extends State<RolesScreen> {
               }
             },
             child: const Text('Delete',
-                style: TextStyle(
-                    color: Colors.red, fontWeight: FontWeight.bold)),
+                style:
+                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -301,8 +305,7 @@ class _RolesScreenState extends State<RolesScreen> {
       builder: (context, snapshot) {
         final docs = snapshot.data?.docs ?? [];
         final total = docs.length;
-        final isLoading =
-            snapshot.connectionState == ConnectionState.waiting;
+        final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
         return Column(
           children: [
@@ -325,15 +328,28 @@ class _RolesScreenState extends State<RolesScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Top icons row
-                       Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Icon(Icons.account_circle_outlined,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AdminProfileScreen(),
+                                  ),
+                                );
+                              },
+                              child: const Icon(Icons.account_circle_outlined,
                                   color: Colors.white, size: 28),
-                              Icon(Icons.exit_to_app,
+                            ),
+                            GestureDetector(
+                              onTap: widget.onLogout,
+                              child: const Icon(Icons.exit_to_app,
                                   color: Colors.white, size: 28),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
                         const SizedBox(height: 16),
                         const Text(
                           'Hii Admin',
@@ -421,8 +437,7 @@ class _RolesScreenState extends State<RolesScreen> {
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color:
-                                    AppColors.primary.withValues(alpha: 0.3),
+                                color: AppColors.primary.withValues(alpha: 0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -485,8 +500,8 @@ class _RolesScreenState extends State<RolesScreen> {
 
   // ─── Role Card ──────────────────────────────────────────────────────────────
 
-  Widget _buildRoleCard(BuildContext context, String id,
-      Map<String, dynamic> data) {
+  Widget _buildRoleCard(
+      BuildContext context, String id, Map<String, dynamic> data) {
     final name = data['name'] as String? ?? '';
     final desc = data['description'] as String? ?? '';
 
@@ -555,9 +570,7 @@ class _RolesScreenState extends State<RolesScreen> {
                   icon: Icons.edit_outlined,
                   color: AppColors.primary,
                   onTap: () => _showRoleSheet(context,
-                      id: id,
-                      existingName: name,
-                      existingDesc: desc),
+                      id: id, existingName: name, existingDesc: desc),
                 ),
                 const SizedBox(width: 6),
                 // Delete button
@@ -679,8 +692,7 @@ class _MemberAvatarsRow extends StatelessWidget {
               width: 28,
               child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(AppColors.primary)),
+                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)),
             ),
           );
         }
@@ -695,7 +707,9 @@ class _MemberAvatarsRow extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade100,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey.shade800
+                        : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -728,8 +742,7 @@ class _MemberAvatarsRow extends StatelessWidget {
               // Stacked avatars
               SizedBox(
                 height: 30,
-                width: (visible.length * 22.0) +
-                    (extra > 0 ? 34 : 8),
+                width: (visible.length * 22.0) + (extra > 0 ? 34 : 8),
                 child: Stack(
                   children: [
                     for (int i = 0; i < visible.length; i++)
@@ -744,10 +757,13 @@ class _MemberAvatarsRow extends StatelessWidget {
                           width: 30,
                           height: 30,
                           decoration: BoxDecoration(
-                            color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.grey.shade200,
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                    ? Colors.grey.shade800
+                                    : Colors.grey.shade200,
                             shape: BoxShape.circle,
-                            border:
-                                Border.all(color: Theme.of(context).cardColor, width: 2),
+                            border: Border.all(
+                                color: Theme.of(context).cardColor, width: 2),
                           ),
                           child: Center(
                             child: Text(
@@ -814,4 +830,3 @@ class _MemberAvatarsRow extends StatelessWidget {
 }
 
 // Curve clipper moved to shared/widgets/curve_clippers.dart
-
