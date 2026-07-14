@@ -22,6 +22,7 @@ class RoleService {
     await _rolesRef.add({
       'name': name.trim(),
       'description': description.trim(),
+      'isActive': true,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -34,6 +35,12 @@ class RoleService {
     await _rolesRef.doc(id).update({
       'name': name.trim(),
       'description': description.trim(),
+    });
+  }
+
+  static Future<void> updateRoleStatus(String id, bool isActive) async {
+    await _rolesRef.doc(id).update({
+      'isActive': isActive,
     });
   }
 

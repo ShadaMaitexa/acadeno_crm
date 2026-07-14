@@ -114,7 +114,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: _loading
           ? const Center(
               child: CircularProgressIndicator(color: AppColors.primary))
@@ -141,15 +141,15 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                             Container(
                               width: 40,
                               height: 40,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.white,
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
                                 child: Text(
                                   'a',
                                   style: TextStyle(
-                                    color: AppColors.primary,
+                                    color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.primary,
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                     fontFamily: 'Georgia',
@@ -195,7 +195,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                     ),
                     child: CircleAvatar(
                       radius: 46,
-                      backgroundColor: Colors.white,
+                      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                       child: CircleAvatar(
                         radius: 42,
                         backgroundColor:
@@ -391,7 +391,7 @@ class _SectionCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -446,7 +446,7 @@ class _InfoRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: AppColors.primary, size: 18),
@@ -470,7 +470,7 @@ class _InfoRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: valueColor ?? AppColors.textDark,
+                    color: valueColor ?? Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
               ],
@@ -497,7 +497,7 @@ class _UidRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: Theme.of(context).scaffoldBackgroundColor,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.fingerprint_outlined,

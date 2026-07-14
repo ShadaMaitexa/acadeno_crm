@@ -43,25 +43,14 @@ class _RolesScreenState extends State<RolesScreen> {
                 Text(
                   isEditing ? 'Edit Role' : 'Add New Role',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
                 ),
                 GestureDetector(
                   onTap: () => Navigator.pop(ctx),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.grey.shade800
-                          : Colors.grey.shade100,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.close,
-                        size: 18, color: Colors.black54),
-                  ),
+                  child: const Icon(Icons.close, size: 20, color: Colors.black),
                 ),
               ],
             ),
@@ -72,20 +61,12 @@ class _RolesScreenState extends State<RolesScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      isEditing
-                          ? 'Edit the role details and save changes.'
-                          : 'Create a new role for your team members.',
-                      style:
-                          TextStyle(fontSize: 13, color: Colors.grey.shade600),
-                    ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 8),
 
                     // ── Role Name ──
                     _buildSheetTextField(
                       controller: nameController,
                       hintText: 'Role Name',
-                      icon: Icons.badge_outlined,
                       validator: (v) => (v == null || v.trim().isEmpty)
                           ? 'Role name is required'
                           : null,
@@ -95,85 +76,81 @@ class _RolesScreenState extends State<RolesScreen> {
                     // ── Description ──
                     _buildSheetTextField(
                       controller: descController,
-                      hintText: 'Role Description (optional)',
-                      icon: Icons.description_outlined,
-                      maxLines: 3,
+                      hintText: 'Description (optional)',
+                      maxLines: 4,
+                    ),
+                    
+                    const SizedBox(height: 24),
+                    
+                    ElevatedButton(
+                      onPressed: loading
+                          ? null
+                          : () async {
+                              if (!formKey.currentState!.validate()) return;
+                              setDialogState(() => loading = true);
+                              try {
+                                if (isEditing) {
+                                  await RoleService.updateRole(
+                                    id: id,
+                                    name: nameController.text,
+                                    description: descController.text,
+                                  );
+                                } else {
+                                  await RoleService.addRole(
+                                    name: nameController.text,
+                                    description: descController.text,
+                                  );
+                                }
+                                if (ctx.mounted) dialogNavigator.pop();
+                                rootMessenger.showSnackBar(SnackBar(
+                                  content: Text(isEditing
+                                      ? 'Role updated successfully'
+                                      : 'Role created successfully'),
+                                  backgroundColor: Colors.green,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12)),
+                                ));
+                              } catch (e) {
+                                setDialogState(() => loading = false);
+                                if (ctx.mounted) {
+                                  ScaffoldMessenger.of(ctx).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24)),
+                        elevation: 0,
+                      ),
+                      child: loading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2.5),
+                            )
+                          : Text(
+                              isEditing ? 'Update Role' : 'Add Role',
+                              style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
                     ),
                   ],
                 ),
               ),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text('Cancel',
-                    style: TextStyle(color: Colors.grey.shade600)),
-              ),
-              ElevatedButton(
-                onPressed: loading
-                    ? null
-                    : () async {
-                        if (!formKey.currentState!.validate()) return;
-                        setDialogState(() => loading = true);
-                        try {
-                          if (isEditing) {
-                            await RoleService.updateRole(
-                              id: id,
-                              name: nameController.text,
-                              description: descController.text,
-                            );
-                          } else {
-                            await RoleService.addRole(
-                              name: nameController.text,
-                              description: descController.text,
-                            );
-                          }
-                          if (ctx.mounted) dialogNavigator.pop();
-                          rootMessenger.showSnackBar(SnackBar(
-                            content: Text(isEditing
-                                ? 'Role updated successfully'
-                                : 'Role created successfully'),
-                            backgroundColor: Colors.green,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ));
-                        } catch (e) {
-                          setDialogState(() => loading = false);
-                          if (ctx.mounted) {
-                            ScaffoldMessenger.of(ctx).showSnackBar(
-                              SnackBar(
-                                content: Text('Error: $e'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        }
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
-                ),
-                child: loading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2.5),
-                      )
-                    : Text(
-                        isEditing ? 'Update Role' : 'Add Role',
-                        style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white),
-                      ),
-              ),
-            ],
+            contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+            actionsPadding: EdgeInsets.zero,
           );
         },
       ),
@@ -183,46 +160,31 @@ class _RolesScreenState extends State<RolesScreen> {
   Widget _buildSheetTextField({
     required TextEditingController controller,
     required String hintText,
-    required IconData icon,
     String? Function(String?)? validator,
     int maxLines = 1,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            offset: const Offset(0, 4),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        validator: validator,
-        maxLines: maxLines,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: const TextStyle(fontSize: 14, color: Colors.black38),
-          filled: true,
-          fillColor: Colors.transparent,
-          prefixIcon: Icon(icon, size: 22, color: AppColors.primary),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-          ),
+    return TextFormField(
+      controller: controller,
+      validator: validator,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.w500),
+        filled: true,
+        fillColor: const Color(0xFFEAF1FA), // light blue
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
       ),
     );
@@ -341,105 +303,81 @@ class _RolesScreenState extends State<RolesScreen> {
 
                 // ── Stats + Add button row, overlapping the curve ──
                 Positioned(
-                  bottom: -28,
+                  top: 135,
                   left: 24,
                   right: 24,
-                  child: Row(
-                    children: [
-                      // Total Roles card
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).cardColor,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.06),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isLoading ? '–' : total.toString(),
+                              style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
                               ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    width: 8,
-                                    height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.primary,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    isLoading ? '–' : total.toString(),
-                                    style: const TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                ],
+                            ),
+                            const SizedBox(height: 2),
+                            const Text(
+                              'Total Roles',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.primary,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Total Roles',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.grey.shade600,
+                            ),
+                          ],
+                        ),
+                        GestureDetector(
+                          onTap: () => _showRoleSheet(context),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.add, color: Colors.white, size: 16),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Add Role',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      // Add Role button
-                      GestureDetector(
-                        onTap: () => _showRoleSheet(context),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 14),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            children: [
-                              Icon(Icons.add, color: Colors.white, size: 20),
-                              SizedBox(width: 6),
-                              Text(
-                                'Add Role',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 46),
+            const SizedBox(height: 66),
 
             // ── Body ────────────────────────────────────────────────────────
             Expanded(
@@ -478,104 +416,146 @@ class _RolesScreenState extends State<RolesScreen> {
       BuildContext context, String id, Map<String, dynamic> data) {
     final name = data['name'] as String? ?? '';
     final desc = data['description'] as String? ?? '';
+    final isActive = data['isActive'] as bool? ?? true;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // ── Top row: icon + name/desc + actions ──
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            Stack(
+              clipBehavior: Clip.none,
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
+                  width: 42,
+                  height: 42,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(14),
+                    color: isActive ? const Color(0xFFEAF1FA) : Colors.transparent,
+                    borderRadius: isActive ? BorderRadius.circular(12) : null,
+                    shape: isActive ? BoxShape.rectangle : BoxShape.circle,
                   ),
-                  child: const Icon(Icons.badge_outlined,
-                      color: AppColors.primary, size: 26),
+                  child: isActive 
+                      ? const Icon(Icons.work, color: AppColors.primary, size: 20)
+                      : Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Icon(Icons.work, color: Colors.grey.shade400, size: 20),
+                            Icon(Icons.block, color: Colors.grey.shade400, size: 42),
+                          ],
+                        ),
                 ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
-                      ),
-                      if (desc.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          desc,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
+                Positioned(
+                  bottom: -2,
+                  right: -2,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: isActive ? const Color(0xFF22C55E) : Colors.orange,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                    ),
                   ),
-                ),
-                // Edit button
-                _buildActionIcon(
-                  icon: Icons.edit_outlined,
-                  color: AppColors.primary,
-                  onTap: () => _showRoleSheet(context,
-                      id: id, existingName: name, existingDesc: desc),
-                ),
-                const SizedBox(width: 6),
-                // Delete button
-                _buildActionIcon(
-                  icon: Icons.delete_outline,
-                  color: Colors.redAccent,
-                  onTap: () => _confirmDelete(context, id, name),
                 ),
               ],
             ),
-
-            // ── Member avatars from Firestore ──
-            _MemberAvatarsRow(roleName: name),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: isActive 
+                          ? Theme.of(context).textTheme.bodyLarge?.color
+                          : Colors.grey.shade500,
+                    ),
+                  ),
+                  if (desc.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      desc,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isActive ? Colors.grey.shade600 : Colors.grey.shade400,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: Colors.black38),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              color: Theme.of(context).cardColor,
+              onSelected: (value) async {
+                if (value == 'edit') {
+                  _showRoleSheet(context,
+                      id: id, existingName: name, existingDesc: desc);
+                } else if (value == 'toggle') {
+                  await RoleService.updateRoleStatus(id, !isActive);
+                } else if (value == 'delete') {
+                  _confirmDelete(context, id, name);
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: 'edit',
+                  child: Row(
+                    children: const [
+                      Icon(Icons.edit_outlined, size: 18, color: AppColors.primary),
+                      SizedBox(width: 12),
+                      Text('Edit', style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'toggle',
+                  child: Row(
+                    children: [
+                      Icon(
+                        isActive ? Icons.block : Icons.check_circle_outline, 
+                        size: 18, 
+                        color: isActive ? Colors.orange : Colors.green,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(isActive ? 'Deactivate' : 'Activate', style: const TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Row(
+                    children: const [
+                      Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                      SizedBox(width: 12),
+                      Text('Delete', style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionIcon({
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 36,
-        height: 36,
-        child: Center(
-          child: Icon(icon, color: color, size: 18),
         ),
       ),
     );
@@ -585,220 +565,51 @@ class _RolesScreenState extends State<RolesScreen> {
 
   Widget _buildEmptyState(BuildContext context) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.badge_outlined,
-                  size: 50, color: Colors.grey.shade400),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'No Roles Found',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).textTheme.bodyLarge?.color,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Create custom roles for your sales and support teams. Tap "Add Role" above to get started.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 14, color: Colors.grey.shade500, height: 1.5),
-            ),
-            const SizedBox(height: 28),
-            ElevatedButton.icon(
-              onPressed: () => _showRoleSheet(context),
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Add First Role',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                elevation: 0,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ─── Member Avatars Row (live from Firestore) ─────────────────────────────────
-
-class _MemberAvatarsRow extends StatelessWidget {
-  final String roleName;
-
-  const _MemberAvatarsRow({required this.roleName});
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: FirebaseFirestore.instance
-          .collection('users')
-          .where('role', isEqualTo: roleName)
-          .snapshots(),
-      builder: (context, snapshot) {
-        final members = snapshot.data?.docs ?? [];
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Padding(
-            padding: EdgeInsets.only(top: 14),
-            child: SizedBox(
-              height: 28,
-              width: 28,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary)),
-            ),
-          );
-        }
-
-        if (members.isEmpty) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 14),
-            child: Row(
-              children: [
-                const Divider(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey.shade800
-                        : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.person_outline,
-                          size: 13, color: Colors.grey.shade500),
-                      const SizedBox(width: 4),
-                      Text(
-                        'No members assigned',
-                        style: TextStyle(
-                            fontSize: 11, color: Colors.grey.shade500),
-                      ),
-                    ],
-                  ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 140,
+            height: 140,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
-          );
-        }
-
-        const maxVisible = 4;
-        final visible = members.take(maxVisible).toList();
-        final extra = members.length - maxVisible;
-
-        return Padding(
-          padding: const EdgeInsets.only(top: 14),
-          child: Row(
-            children: [
-              // Stacked avatars
-              SizedBox(
-                height: 30,
-                width: (visible.length * 22.0) + (extra > 0 ? 34 : 8),
-                child: Stack(
-                  children: [
-                    for (int i = 0; i < visible.length; i++)
-                      Positioned(
-                        left: i * 22.0,
-                        child: _buildAvatar(visible[i].data(), i),
-                      ),
-                    if (extra > 0)
-                      Positioned(
-                        left: visible.length * 22.0,
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).brightness == Brightness.dark
-                                    ? Colors.grey.shade800
-                                    : Colors.grey.shade200,
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: Theme.of(context).cardColor, width: 2),
-                          ),
-                          child: Center(
-                            child: Text(
-                              '+$extra',
-                              style: TextStyle(
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
+            child: Center(
+              child: Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF1FA), // light blue
+                  borderRadius: BorderRadius.circular(20),
                 ),
+                child: const Icon(Icons.work_outline,
+                    size: 36, color: AppColors.primary),
               ),
-              const SizedBox(width: 10),
-              Text(
-                '${members.length} ${members.length == 1 ? 'member' : 'members'}',
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w500),
-              ),
-            ],
+            ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildAvatar(Map<String, dynamic> data, int index) {
-    final name = data['name'] as String? ?? '?';
-    final initial = name.isNotEmpty ? name[0].toUpperCase() : '?';
-    final colors = [
-      const Color(0xFF3582CB),
-      const Color(0xFF2E7D32),
-      const Color(0xFFD67D3E),
-      const Color(0xFF7E5C54),
-      const Color(0xFF9C27B0),
-    ];
-    final bg = colors[index % colors.length];
-
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        color: bg,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
-      ),
-      child: Center(
-        child: Text(
-          initial,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
+          const SizedBox(height: 24),
+          const Text(
+            'No roles found',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1E293B),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 }
+
+
 
 // Curve clipper moved to shared/widgets/curve_clippers.dart

@@ -47,7 +47,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
   Widget _buildPlaceholder(String title) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -55,10 +55,10 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             Icon(Icons.work_outline, size: 64, color: Colors.grey.shade300),
             const SizedBox(height: 16),
             Text(title,
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textDark)),
+                    color: Theme.of(context).textTheme.bodyLarge?.color)),
             const SizedBox(height: 8),
             Text('Coming Soon',
                 style: TextStyle(fontSize: 13, color: Colors.grey.shade500)),
@@ -95,15 +95,15 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                       child: Container(
                         width: 40,
                         height: 40,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
                           child: Text(
-                            'a',
+                            _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
                             style: TextStyle(
-                              color: AppColors.primary,
+                              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.primary,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Georgia',
@@ -232,10 +232,10 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -256,7 +256,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               }
             });
           },
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).cardColor,
           elevation: 0,
           type: BottomNavigationBarType.fixed,
           selectedItemColor: AppColors.primary,
