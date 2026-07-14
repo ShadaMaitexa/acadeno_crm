@@ -90,15 +90,27 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const UserProfileScreen(),
-                          ),
-                        );
+                        // Open drawer or do nothing if logo is tapped
                       },
-                      child: const Icon(Icons.account_circle_outlined,
-                          color: Colors.white, size: 28),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'a',
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Georgia',
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     GestureDetector(
                       onTap: _logout,
@@ -134,22 +146,28 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                 children: [
                   HomeMenuCard(
-                    title: 'HOT leads',
+                    title: 'Hot leads',
+                    subtitle: 'Prospects ready to close',
                     icon: Icons.local_fire_department,
                     iconColor: AppColors.hotLeads,
                     iconBg: const Color(0xFFFFF0E6),
                     badgeCount: count > 0 ? count : null,
-                    onTap: () => setState(() => _showHotLeads = true),
+                    isActive: _showHotLeads, // Highlight when pressed before transition
+                    onTap: () {
+                      setState(() => _showHotLeads = true);
+                    },
                   ),
                   HomeMenuCard(
-                    title: 'Follow-ups',
-                    icon: Icons.sync,
+                    title: 'Follow ups',
+                    subtitle: 'Leads waiting on a replay',
+                    icon: Icons.person_outline,
                     iconColor: AppColors.followUps,
                     iconBg: const Color(0xFFE6F7F5),
                     onTap: () {},
                   ),
                   HomeMenuCard(
                     title: 'Reminders',
+                    subtitle: 'Tasks and callbacks due soon',
                     icon: Icons.access_time,
                     iconColor: AppColors.reminders,
                     iconBg: const Color(0xFFF3EBE9),
@@ -157,6 +175,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   ),
                   HomeMenuCard(
                     title: 'College visits',
+                    subtitle: 'Scheduled campus visits',
                     icon: Icons.account_balance,
                     iconColor: const Color(0xFF37474F),
                     iconBg: const Color(0xFFECEFF1),
@@ -204,7 +223,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       case 3:
         return _buildPlaceholder('Tasks');
       case 4:
-        return _buildPlaceholder('Visits');
+        return const UserProfileScreen();
       default:
         return _buildHomeBody();
     }

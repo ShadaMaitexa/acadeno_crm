@@ -200,19 +200,23 @@ class AppSearchBar extends StatelessWidget {
 /// Home menu card with icon on the right (user dashboard).
 class HomeMenuCard extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final IconData icon;
   final Color iconColor;
   final Color iconBg;
   final int? badgeCount;
+  final bool isActive;
   final VoidCallback? onTap;
 
   const HomeMenuCard({
     super.key,
     required this.title,
+    this.subtitle,
     required this.icon,
     required this.iconColor,
     required this.iconBg,
     this.badgeCount,
+    this.isActive = false,
     this.onTap,
   });
 
@@ -226,6 +230,9 @@ class HomeMenuCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
+          border: isActive
+              ? Border.all(color: AppColors.primary, width: 1.5)
+              : Border.all(color: Colors.transparent, width: 1.5),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -237,13 +244,29 @@ class HomeMenuCard extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textDark,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textDark,
+                    ),
+                  ),
+                  if (subtitle != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        subtitle!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
             if (badgeCount != null && badgeCount! > 0)
@@ -290,6 +313,7 @@ Widget buildFormField({
   int maxLines = 1,
   String? Function(String?)? validator,
   Widget? suffix,
+  bool enabled = true,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -299,6 +323,7 @@ Widget buildFormField({
     ),
     child: TextFormField(
       controller: controller,
+      enabled: enabled,
       keyboardType: keyboardType,
       obscureText: obscureText,
       maxLines: maxLines,

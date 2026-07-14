@@ -205,32 +205,32 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
-                      _isConverted ? Icons.check_circle_outline : Icons.remove_circle_outline,
-                      color: _isConverted ? Colors.green : Colors.grey,
-                      size: 28,
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: _isConverted ? Colors.green : Colors.grey,
+                            width: 1.5),
+                      ),
+                      child: Icon(
+                        _isConverted
+                            ? Icons.check
+                            : Icons.horizontal_rule, // Using a dash/line for unconverted
+                        color: _isConverted ? Colors.green : Colors.grey,
+                        size: 20,
+                      ),
                     ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Deal Status',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Theme.of(context).textTheme.bodySmall?.color,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Text(
-                          _isConverted ? 'CONVERTED' : 'UNCONVERTED',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: _isConverted ? Colors.black87 : Colors.black87,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(width: 16),
+                    Text(
+                      _isConverted ? 'CONVERTED' : 'UNCONVERTED',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: _isConverted ? Colors.black87 : Colors.grey.shade600,
+                        letterSpacing: 1.2,
+                      ),
                     ),
                     const Spacer(),
                     Switch(
@@ -305,7 +305,7 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(24),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     elevation: 0,

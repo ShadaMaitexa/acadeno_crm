@@ -106,9 +106,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                     width: 90,
                     height: 90,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F7FA),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFE8ECF0)),
                     ),
                     child: _avatarLetter.isNotEmpty
                         ? Center(
@@ -121,8 +120,8 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                               ),
                             ),
                           )
-                        : const Icon(Icons.person_outline,
-                            size: 40, color: Colors.grey),
+                        : const Icon(Icons.person,
+                            size: 50, color: Colors.white),
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -164,7 +163,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                 buildFormField(
                   context: context,
                   controller: _noteController,
-                  hint: 'Interest/Additional Notes',
+                  hint: 'Enter additional notes (optional)',
                   icon: Icons.notes_outlined,
                   maxLines: 4,
                 ),

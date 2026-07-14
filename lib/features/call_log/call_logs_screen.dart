@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:call_log/call_log.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/call_log_service.dart';
 import '../../core/services/device_call_log_service.dart';
@@ -104,7 +105,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   Future<void> _loadDeviceLogs() async {
     if (mounted) setState(() => _loadingLogs = true);
 
-    final entries = await DeviceCallLogService.getCallLogs(count: 200);
+    final entries = await DeviceCallLogService.getCallLogs();
 
    
     final items = entries.map((e) {
@@ -159,42 +160,160 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     }
   }
 
-  // ─── SIM Dialog ────────────────────────────────────────────────────────────
+  // ─── Dialogs ───────────────────────────────────────────────────────────────
 
-  void _showSIMSelectionDialog() {
-    showModalBottomSheet(
+  void _showClearHistoryDialog() {
+    showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => SafeArea(
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                child: Text('Select SIM Card',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Container(
+                width: 64,
+                height: 64,
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.delete_outline,
+                    color: Colors.red, size: 32),
               ),
-              const Divider(),
-              for (final sim in ['SIM 1', 'SIM 2', 'All SIMs'])
-                ListTile(
-                  leading: const Icon(Icons.sim_card_outlined,
-                      color: AppColors.primary),
-                  title: Text(sim),
-                  trailing: _selectedSIM == sim
-                      ? const Icon(Icons.check, color: AppColors.primary)
-                      : null,
-                  onTap: () {
-                    setState(() => _selectedSIM = sim);
+              const SizedBox(height: 24),
+              const Text(
+                'Clear Call History?',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Are you sure you want to permanently delete all call records?',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Implement delete
                     Navigator.pop(ctx);
                   },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  child: const Text('Delete',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
                 ),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Keep History',
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.primary)),
+              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  void _showSIMSelectionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Select SIM for calling',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 24),
+              _buildSIMOption(ctx, 'SIM 1 (BSNL)', 'BSNL', '+91 7558004685'),
+              const SizedBox(height: 12),
+              _buildSIMOption(ctx, 'SIM 2 (Airtel)', 'Airtel', '+91 9308004875'),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                  ),
+                  child: const Text('Cancel',
+                      style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSIMOption(BuildContext ctx, String label, String network, String phone) {
+    final isSelected = _selectedSIM == label.split(' ')[0] + ' ' + label.split(' ')[1];
+    return GestureDetector(
+      onTap: () {
+        setState(() => _selectedSIM = label.split(' ')[0] + ' ' + label.split(' ')[1]);
+        Navigator.pop(ctx);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.grey.shade300,
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.sim_card_outlined,
+                color: isSelected ? AppColors.primary : Colors.grey.shade500),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(label,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textDark)),
+                  Text(phone,
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                ],
+              ),
+            ),
+            Icon(Icons.signal_cellular_alt,
+                color: isSelected ? AppColors.primary : Colors.grey.shade400,
+                size: 20),
+          ],
         ),
       ),
     );
@@ -347,6 +466,38 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                 ),
               ],
             ),
+          ),
+        ),
+        
+        // Select All Row
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: Checkbox(
+                      value: false,
+                      onChanged: (v) {},
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4)),
+                      side: BorderSide(color: Colors.grey.shade400),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text('Select All',
+                      style: TextStyle(fontWeight: FontWeight.w500)),
+                ],
+              ),
+              GestureDetector(
+                onTap: _showClearHistoryDialog,
+                child: Icon(Icons.delete_outline, color: Colors.red.shade400),
+              ),
+            ],
           ),
         ),
 
@@ -667,6 +818,18 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: false,
+                        onChanged: (v) {},
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
+                        side: BorderSide(color: Colors.grey.shade400),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
                     Container(
                       width: 44,
                       height: 44,
@@ -677,7 +840,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                       child: Center(
                           child: Icon(iconData, color: iconColor, size: 20)),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

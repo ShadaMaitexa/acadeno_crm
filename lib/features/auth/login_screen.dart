@@ -107,19 +107,18 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Enter your email and we will send a reset link.',
+                'Enter your email address and we will send you a link to reset your password.',
                 style: TextStyle(fontSize: 13, color: Colors.black54),
               ),
               const SizedBox(height: 20),
               buildFormField(
                 context: ctx,
                 controller: emailCtrl,
-                hint: 'Email',
-                icon: Icons.email_outlined,
+                hint: 'Enter Email',
               ),
               const SizedBox(height: 20),
               buildPrimaryButton(
-                label: 'Send Reset Link',
+                label: 'SEND RESET LINK',
                 onPressed: () async {
                   final email = emailCtrl.text.trim();
                   if (email.isEmpty ||
@@ -215,10 +214,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    const Text(
+                      'Email',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87),
+                    ),
+                    const SizedBox(height: 8),
                     buildFormField(
                       context: context,
                       controller: _emailController,
-                      hint: 'Email',
+                      hint: '', // Removed hint to match design
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
@@ -233,10 +240,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
+                    const Text(
+                      'Password',
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87),
+                    ),
+                    const SizedBox(height: 8),
                     buildFormField(
                       context: context,
                       controller: _passwordController,
-                      hint: 'Password',
+                      hint: '',
                       icon: Icons.lock_outline,
                       obscureText: _obscurePassword,
                       suffix: IconButton(

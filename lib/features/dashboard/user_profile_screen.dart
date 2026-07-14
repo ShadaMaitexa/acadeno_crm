@@ -110,9 +110,26 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             GestureDetector(
-                              onTap: () => Navigator.pop(context),
-                              child: const Icon(Icons.arrow_back,
-                                  color: Colors.white, size: 24),
+                              onTap: () {}, // Optional drawer
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'a',
+                                    style: TextStyle(
+                                      color: AppColors.primary,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Georgia',
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                             GestureDetector(
                               onTap: () => showLogoutConfirmationDialog(context),
@@ -139,15 +156,28 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   child: CircleAvatar(
                     radius: 44,
                     backgroundColor: Colors.white,
-                    child: CircleAvatar(
-                      radius: 40,
-                      backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                      child: Text(
-                        _initial,
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.white,
+                        child: Text(
+                          _initial,
+                          style: const TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primary,
+                          ),
                         ),
                       ),
                     ),
@@ -185,6 +215,22 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             hint: 'Email',
                             icon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
+                          ),
+                          const SizedBox(height: 14),
+                          buildFormField(
+                            context: context,
+                            controller: TextEditingController(text: 'someID'), // Example ID
+                            hint: 'ID',
+                            icon: Icons.key_outlined,
+                            enabled: false,
+                          ),
+                          const SizedBox(height: 14),
+                          buildFormField(
+                            context: context,
+                            controller: TextEditingController(text: 'Acadeno'), // Company
+                            hint: 'Company',
+                            icon: Icons.business_outlined,
+                            enabled: false,
                           ),
                           const SizedBox(height: 32),
                           buildPrimaryButton(

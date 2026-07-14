@@ -66,10 +66,32 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
       ),
       body: Column(
         children: [
-          AppSearchBar(
-            controller: _searchController,
-            hint: 'Search',
-            onChanged: (v) => setState(() => _query = v.toLowerCase()),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: false,
+                        onChanged: (v) {},
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
+                        side: BorderSide(color: Colors.grey.shade400),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Text('Select All',
+                        style: TextStyle(fontWeight: FontWeight.w500)),
+                  ],
+                ),
+                Icon(Icons.delete_outline, color: Colors.red.shade400),
+              ],
+            ),
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -163,60 +185,68 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  phone.isNotEmpty ? phone : name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppColors.textDark,
-                  ),
-                ),
-              ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.hotLeads.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(12),
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
                 ),
-                child: const Text(
-                  'Hot',
-                  style: TextStyle(
-                    color: AppColors.hotLeads,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                  ),
+                child: const Icon(Icons.person_outline,
+                    color: AppColors.primary, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppColors.textDark,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      phone,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      'Jul 9, 2:40 PM • 1m 20s', // Placeholder for actual time if available
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
                 ),
               ),
+              Icon(Icons.more_vert, color: Colors.grey.shade400),
             ],
           ),
-          if (notes.isNotEmpty || name.isNotEmpty) ...[
-            const SizedBox(height: 6),
-            Text(
-              notes.isNotEmpty ? notes : name,
-              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
                 child: _actionButton(
                   label: 'Call',
-                  icon: Icons.call,
+                  icon: Icons.call_outlined,
                   color: AppColors.primary,
-                  bg: AppColors.callOutgoingBg,
+                  bg: AppColors.callOutgoingBg, // Using standard call outgoing bg
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _actionButton(
                   label: 'WhatsApp',
-                  icon: Icons.chat,
+                  icon: Icons.chat_bubble_outline,
                   color: const Color(0xFF25D366),
                   bg: const Color(0xFFE8F8F0),
                 ),
