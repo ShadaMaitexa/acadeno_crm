@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
-import '../../shared/helpers/date_helpers.dart';
+import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:call_log/call_log.dart';
 
 enum CallLogPermissionStatus {
   unknown,
@@ -11,8 +10,37 @@ enum CallLogPermissionStatus {
   unsupported, // web / iOS
 }
 
+/// Lightweight model matching the data returned from the native MethodChannel.
+class CallLogEntry {
+  final String number;
+  final String name;
+  final String date;
+  final String duration;
+  final String type; // 'outgoing' | 'answered' | 'missed'
+  final int timestamp;
+
+  const CallLogEntry({
+    required this.number,
+    required this.name,
+    required this.date,
+    required this.duration,
+    required this.type,
+    required this.timestamp,
+  });
+
+  factory CallLogEntry.fromMap(Map<dynamic, dynamic> m) => CallLogEntry(
+        number: m['number'] as String? ?? '',
+        name: m['name'] as String? ?? '',
+        date: m['date'] as String? ?? '',
+        duration: m['duration'] as String? ?? '',
+        type: m['type'] as String? ?? 'outgoing',
+        timestamp: (m['timestamp'] as int?) ?? 0,
+      );
+}
 
 class DeviceCallLogService {
+  static const _channel = MethodChannel('com.acadeno.crm/call_logs');
+
   /// Returns the current permission status without requesting.
   static Future<CallLogPermissionStatus> checkPermission() async {
     if (kIsWeb) return CallLogPermissionStatus.unsupported;
@@ -38,45 +66,38 @@ class DeviceCallLogService {
     await openAppSettings();
   }
 
-  /// Reads call logs from the device.
+  /// Reads call logs from the device via a native MethodChannel.
   /// Returns an empty list on unsupported platforms.
   static Future<List<CallLogEntry>> getCallLogs() async {
     if (kIsWeb) return [];
     if (defaultTargetPlatform != TargetPlatform.android) return [];
 
-    final entries = await CallLog.get();
-    return entries.toList();
+    try {
+      final List<dynamic> raw =
+          await _channel.invokeMethod('getCallLogs');
+      return raw
+          .cast<Map<dynamic, dynamic>>()
+          .map(CallLogEntry.fromMap)
+          .toList();
+    } on PlatformException catch (_) {
+      return [];
+    }
   }
 
   static CallLogPermissionStatus _mapStatus(PermissionStatus status) {
     if (status.isGranted) return CallLogPermissionStatus.granted;
-    if (status.isPermanentlyDenied) return CallLogPermissionStatus.permanentlyDenied;
+    if (status.isPermanentlyDenied) {
+      return CallLogPermissionStatus.permanentlyDenied;
+    }
     return CallLogPermissionStatus.denied;
   }
 
-  /// Maps call_log's CallType to the app's internal string type
-  static String mapCallType(CallType? type) {
-    switch (type) {
-      case CallType.outgoing:
-        return 'outgoing';
-      case CallType.incoming:
-        return 'answered';
-      case CallType.missed:
-        return 'missed';
-      case CallType.rejected:
-        return 'missed';
-      default:
-        return 'outgoing';
-    }
-  }
+  /// Maps the string type to the app's internal string type (already correct).
+  static String mapCallType(String type) => type;
 
-  /// Formats duration in seconds to "Xm Ys"
-  static String formatDuration(int? seconds) {
-    return DateHelpers.formatDuration(seconds);
-  }
+  /// Duration is already formatted by the native side.
+  static String formatDuration(String duration) => duration;
 
-  /// Formats a unix timestamp (ms) to a readable string
-  static String formatTimestamp(int? timestamp) {
-    return DateHelpers.formatTimestamp(timestamp);
-  }
+  /// Date is already formatted by the native side.
+  static String formatTimestamp(String date) => date;
 }

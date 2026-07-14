@@ -40,9 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      final destination = role == 'admin'
-          ? const AdminHomeScreen()
-          : const UserHomeScreen();
+      final destination =
+          role == 'admin' ? const AdminHomeScreen() : const UserHomeScreen();
 
       Navigator.pushReplacement(
         context,
@@ -97,8 +96,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text('Reset Password',
-                      style: TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   InkWell(
                     onTap: () => Navigator.pop(ctx),
                     child: const Icon(Icons.close, size: 20),
@@ -190,7 +189,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    'Acadena',
+                    'Acadeno',
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
@@ -262,8 +261,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Colors.grey,
                           size: 20,
                         ),
-                        onPressed: () =>
-                            setState(() => _obscurePassword = !_obscurePassword),
+                        onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword),
                       ),
                       validator: (v) => (v == null || v.isEmpty)
                           ? 'Please enter your password'

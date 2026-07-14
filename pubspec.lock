@@ -41,14 +41,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
-  call_log:
-    dependency: "direct main"
-    description:
-      name: call_log
-      sha256: a69eab5b72bb534a07b648792f927c76de9f4c05c24d4fc355b7436c8e0e146f
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.4"
   characters:
     dependency: transitive
     description:

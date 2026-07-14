@@ -1,22 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:call_log/call_log.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/call_log_service.dart';
 import '../../core/services/device_call_log_service.dart';
 
-String _extractCallLogNumber(CallLogEntry entry) {
-  final dynamic dynamicEntry = entry;
-  return (dynamicEntry.number as String?) ??
-      (dynamicEntry.formattedNumber as String?) ??
-      '';
-}
+String _extractCallLogNumber(CallLogEntry entry) => entry.number;
 
-String _extractCallLogType(CallLogEntry entry) {
-  final dynamic dynamicEntry = entry;
-  return DeviceCallLogService.mapCallType(
-      (dynamicEntry.callType ?? dynamicEntry.type) as dynamic);
-}
+
 
 // ─── Data Model ──────────────────────────────────────────────────────────────
 
@@ -40,14 +30,13 @@ class CallLogItem {
   });
 
   factory CallLogItem.fromDevice(CallLogEntry e, {String? savedTag}) {
-    final phoneNumber = _extractCallLogNumber(e);
     return CallLogItem(
-      id: '', // no Firestore id yet
-      name: 'Unknown',
-      phoneNumber: phoneNumber,
-      dateTime: DeviceCallLogService.formatTimestamp(e.timestamp),
-      duration: DeviceCallLogService.formatDuration(e.duration),
-      callType: _extractCallLogType(e),
+      id: '',
+      name: e.name.isNotEmpty ? e.name : 'Unknown',
+      phoneNumber: e.number,
+      dateTime: e.date,
+      duration: e.duration,
+      callType: e.type,
       activeTag: savedTag,
     );
   }
@@ -74,6 +63,41 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   CallLogPermissionStatus _permStatus = CallLogPermissionStatus.unknown;
   bool _loadingLogs = false;
   List<CallLogItem> _deviceLogs = [];
+
+  // Selection mode
+  bool _selectionMode = false;
+  final Set<int> _selectedIndexes = {};
+
+  bool get _allSelected =>
+      _deviceLogs.isNotEmpty && _selectedIndexes.length == _deviceLogs.length;
+
+  void _toggleSelectionMode() {
+    setState(() {
+      _selectionMode = !_selectionMode;
+      _selectedIndexes.clear();
+    });
+  }
+
+  void _toggleSelectAll(bool? val) {
+    setState(() {
+      if (val == true) {
+        _selectedIndexes.addAll(
+            List.generate(_deviceLogs.length, (i) => i));
+      } else {
+        _selectedIndexes.clear();
+      }
+    });
+  }
+
+  void _toggleItem(int index) {
+    setState(() {
+      if (_selectedIndexes.contains(index)) {
+        _selectedIndexes.remove(index);
+      } else {
+        _selectedIndexes.add(index);
+      }
+    });
+  }
 
   // Phone → saved tag from Firestore (keyed by phone number)
   final Map<String, String?> _tagCache = {};
@@ -163,50 +187,59 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   // ─── Dialogs ───────────────────────────────────────────────────────────────
 
   void _showClearHistoryDialog() {
+    final count = _selectedIndexes.length;
+    final label = count > 0 ? '$count selected record${count > 1 ? 's' : ''}' : 'all call records';
     showDialog(
       context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.45),
       builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        elevation: 0,
+        backgroundColor: Colors.white,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 64,
-                height: 64,
+                width: 72,
+                height: 72,
                 decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
+                  color: const Color(0xFFEEF0FB),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.delete_outline,
-                    color: Colors.red, size: 32),
+                child: const Icon(Icons.delete_outline_rounded,
+                    color: Color(0xFFE53935), size: 36),
               ),
               const SizedBox(height: 24),
               const Text(
                 'Clear Call History?',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A1A2E)),
               ),
               const SizedBox(height: 12),
               Text(
-                'Are you sure you want to permanently delete all call records?',
+                'Are you sure you want to permanently delete $label?',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade600, height: 1.5),
               ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Implement delete
+                  onPressed: () async {
                     Navigator.pop(ctx);
+                    await _deleteSelected();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(28),
                     ),
+                    elevation: 0,
                   ),
                   child: const Text('Delete',
                       style: TextStyle(
@@ -215,7 +248,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                           color: Colors.white)),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
                 child: const Text('Keep History',
@@ -229,6 +262,29 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _deleteSelected() async {
+    // Collect Firestore IDs for selected items that have one
+    final toDelete = _selectedIndexes
+        .map((i) => _deviceLogs[i])
+        .where((log) => log.id.isNotEmpty)
+        .map((log) => log.id)
+        .toList();
+
+    if (toDelete.isNotEmpty) {
+      await CallLogService.deleteLogs(toDelete);
+    }
+
+    // Remove all selected from local list (highest index first to keep indexes valid)
+    final sortedIndexes = _selectedIndexes.toList()..sort((a, b) => b.compareTo(a));
+    setState(() {
+      for (final i in sortedIndexes) {
+        _deviceLogs.removeAt(i);
+      }
+      _selectedIndexes.clear();
+      _selectionMode = false;
+    });
   }
 
   void _showSIMSelectionDialog() {
@@ -276,10 +332,10 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   }
 
   Widget _buildSIMOption(BuildContext ctx, String label, String network, String phone) {
-    final isSelected = _selectedSIM == label.split(' ')[0] + ' ' + label.split(' ')[1];
+    final isSelected = _selectedSIM == '${label.split(' ')[0]} ${label.split(' ')[1]}';
     return GestureDetector(
       onTap: () {
-        setState(() => _selectedSIM = label.split(' ')[0] + ' ' + label.split(' ')[1]);
+        setState(() => _selectedSIM = '${label.split(' ')[0]} ${label.split(' ')[1]}');
         Navigator.pop(ctx);
       },
       child: Container(
@@ -322,22 +378,18 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   // ─── Options Menu ──────────────────────────────────────────────────────────
 
   void _showOptionsMenu(CallLogItem log) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => SafeArea(
-        child: Column(
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(log.name,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+        contentPadding: const EdgeInsets.only(top: 16, bottom: 8),
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(log.name,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: 16),
-                  textAlign: TextAlign.center),
-            ),
-            const Divider(),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.person_outline),
               title: const Text('View Details'),
@@ -377,31 +429,51 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final selectedCount = _selectedIndexes.length;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: Theme.of(context).cardColor,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
-          onPressed: widget.onBack,
+          icon: Icon(
+            _selectionMode ? Icons.close : Icons.arrow_back,
+            color: Theme.of(context).iconTheme.color,
+          ),
+          onPressed: _selectionMode ? _toggleSelectionMode : widget.onBack,
         ),
-        title: Text('Call Logs',
-            style: TextStyle(
-                color: Theme.of(context).textTheme.titleLarge?.color,
-                fontWeight: FontWeight.bold,
-                fontSize: 20)),
+        title: Text(
+          _selectionMode
+              ? (selectedCount == 0 ? 'Select items' : '$selectedCount selected')
+              : 'Call Logs',
+          style: TextStyle(
+              color: Theme.of(context).textTheme.titleLarge?.color,
+              fontWeight: FontWeight.bold,
+              fontSize: 20),
+        ),
         actions: [
-          if (_permStatus == CallLogPermissionStatus.granted)
+          if (!_selectionMode && _permStatus == CallLogPermissionStatus.granted)
             IconButton(
               icon: Icon(Icons.sim_card_outlined, color: Theme.of(context).iconTheme.color),
               onPressed: _showSIMSelectionDialog,
             ),
-          if (_permStatus == CallLogPermissionStatus.granted)
+          if (!_selectionMode && _permStatus == CallLogPermissionStatus.granted)
             IconButton(
               icon: Icon(Icons.refresh, color: Theme.of(context).iconTheme.color),
               onPressed: _loadDeviceLogs,
               tooltip: 'Refresh',
+            ),
+          if (!_selectionMode && _permStatus == CallLogPermissionStatus.granted && _deviceLogs.isNotEmpty)
+            IconButton(
+              icon: Icon(Icons.delete_outline, color: Colors.red.shade400),
+              tooltip: 'Delete',
+              onPressed: _toggleSelectionMode,
+            ),
+          if (_selectionMode && selectedCount > 0)
+            IconButton(
+              icon: const Icon(Icons.delete_rounded, color: Colors.red),
+              tooltip: 'Delete selected',
+              onPressed: _showClearHistoryDialog,
             ),
         ],
       ),
@@ -469,37 +541,44 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
           ),
         ),
         
-        // Select All Row
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: Checkbox(
-                      value: false,
-                      onChanged: (v) {},
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4)),
-                      side: BorderSide(color: Colors.grey.shade400),
-                    ),
+        // Select All Row — only shown in selection mode
+        if (_selectionMode)
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            color: Theme.of(context).cardColor,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Checkbox(
+                    value: _allSelected,
+                    tristate: false,
+                    onChanged: _toggleSelectAll,
+                    activeColor: AppColors.primary,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4)),
+                    side: BorderSide(color: Colors.grey.shade400),
                   ),
-                  const SizedBox(width: 12),
-                  const Text('Select All',
-                      style: TextStyle(fontWeight: FontWeight.w500)),
-                ],
-              ),
-              GestureDetector(
-                onTap: _showClearHistoryDialog,
-                child: Icon(Icons.delete_outline, color: Colors.red.shade400),
-              ),
-            ],
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  _allSelected ? 'Deselect All' : 'Select All',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, fontSize: 14),
+                ),
+                const Spacer(),
+                Text(
+                  '${_selectedIndexes.length} / ${_deviceLogs.length}',
+                  style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
           ),
-        ),
 
         // Log list
         Expanded(
@@ -794,15 +873,25 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
         break;
     }
 
+    final index = _deviceLogs.indexOf(log);
+    final isChecked = _selectedIndexes.contains(index);
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: InkWell(
-        onTap: widget.onLogTap != null ? () => widget.onLogTap!(log) : null,
+        onTap: _selectionMode
+            ? () => _toggleItem(index)
+            : (widget.onLogTap != null ? () => widget.onLogTap!(log) : null),
         borderRadius: BorderRadius.circular(12),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: isChecked
+                ? AppColors.primary.withValues(alpha: 0.06)
+                : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(12),
+            border: isChecked
+                ? Border.all(color: AppColors.primary.withValues(alpha: 0.4), width: 1.5)
+                : Border.all(color: Colors.transparent, width: 1.5),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
@@ -818,18 +907,22 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Checkbox(
-                        value: false,
-                        onChanged: (v) {},
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4)),
-                        side: BorderSide(color: Colors.grey.shade400),
+                    if (_selectionMode) ...[  
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: Checkbox(
+                          value: _selectedIndexes.contains(_deviceLogs.indexOf(log)),
+                          onChanged: (_) => _toggleItem(_deviceLogs.indexOf(log)),
+                          activeColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)),
+                          side: BorderSide(color: Colors.grey.shade400),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
+                      const SizedBox(width: 12),
+                    ],
+                    const SizedBox(width: 0),
                     Container(
                       width: 44,
                       height: 44,
@@ -865,7 +958,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.more_vert, color: Theme.of(context).iconTheme.color?.withOpacity(0.5)),
+                      icon: Icon(Icons.more_vert, color: Theme.of(context).iconTheme.color?.withValues(alpha: 0.5)),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       onPressed: () => _showOptionsMenu(log),

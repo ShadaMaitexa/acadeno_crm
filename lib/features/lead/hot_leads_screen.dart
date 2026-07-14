@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/lead_service.dart';
-import '../../shared/widgets/app_ui_widgets.dart';
 
 class HotLeadsScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -165,7 +164,6 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
       BuildContext context, String id, Map<String, dynamic> data) {
     final name = data['name'] as String? ?? 'Unknown';
     final phone = data['phone'] as String? ?? '';
-    final notes = data['notes'] as String? ?? '';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

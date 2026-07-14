@@ -43,4 +43,14 @@ class CallLogService {
   static Future<void> deleteLog(String logId) async {
     await _db.collection('call_logs').doc(logId).delete();
   }
+
+  /// Batch-delete multiple call log documents atomically.
+  static Future<void> deleteLogs(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final batch = _db.batch();
+    for (final id in ids) {
+      batch.delete(_db.collection('call_logs').doc(id));
+    }
+    await batch.commit();
+  }
 }

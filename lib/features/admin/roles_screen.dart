@@ -24,182 +24,150 @@ class _RolesScreenState extends State<RolesScreen> {
     final formKey = GlobalKey<FormState>();
     final isEditing = id != null;
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      barrierDismissible: true,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) {
+        builder: (ctx, setDialogState) {
           bool loading = false;
-          final sheetNavigator = Navigator.of(ctx);
+          final dialogNavigator = Navigator.of(ctx);
           final rootMessenger = ScaffoldMessenger.of(context);
 
-          return Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(ctx).viewInsets.bottom,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // ── Drag handle ──
-                      Center(
-                        child: Container(
-                          width: 44,
-                          height: 4,
-                          margin: const EdgeInsets.only(bottom: 20),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-
-                      // ── Title row ──
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            isEditing ? 'Edit Role' : 'Add New Role',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  Theme.of(context).textTheme.bodyLarge?.color,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => Navigator.pop(ctx),
-                            child: Container(
-                              width: 32,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? Colors.grey.shade800
-                                    : Colors.grey.shade100,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.close,
-                                  size: 18, color: Colors.black54),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        isEditing
-                            ? 'Edit the role details and save changes.'
-                            : 'Create a new role for your team members.',
-                        style: TextStyle(
-                            fontSize: 13, color: Colors.grey.shade600),
-                      ),
-                      const SizedBox(height: 24),
-
-                      // ── Role Name ──
-                      _buildSheetTextField(
-                        controller: nameController,
-                        hintText: 'Role Name',
-                        icon: Icons.badge_outlined,
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Role name is required'
-                            : null,
-                      ),
-                      const SizedBox(height: 14),
-
-                      // ── Description ──
-                      _buildSheetTextField(
-                        controller: descController,
-                        hintText: 'Role Description (optional)',
-                        icon: Icons.description_outlined,
-                        maxLines: 3,
-                      ),
-                      const SizedBox(height: 28),
-
-                      // ── Submit ──
-                      StatefulBuilder(
-                        builder: (_, setBtn) => ElevatedButton(
-                          onPressed: loading
-                              ? null
-                              : () async {
-                                  if (!formKey.currentState!.validate()) return;
-                                  setBtn(() => loading = true);
-                                  try {
-                                    if (isEditing) {
-                                      await RoleService.updateRole(
-                                        id: id,
-                                        name: nameController.text,
-                                        description: descController.text,
-                                      );
-                                    } else {
-                                      await RoleService.addRole(
-                                        name: nameController.text,
-                                        description: descController.text,
-                                      );
-                                    }
-                                    if (ctx.mounted) sheetNavigator.pop();
-                                    rootMessenger.showSnackBar(SnackBar(
-                                      content: Text(isEditing
-                                          ? 'Role updated successfully'
-                                          : 'Role created successfully'),
-                                      backgroundColor: Colors.green,
-                                      behavior: SnackBarBehavior.floating,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
-                                    ));
-                                  } catch (e) {
-                                    setBtn(() => loading = false);
-                                    if (ctx.mounted) {
-                                      ScaffoldMessenger.of(ctx).showSnackBar(
-                                        SnackBar(
-                                          content: Text('Error: $e'),
-                                          backgroundColor: Colors.red,
-                                        ),
-                                      );
-                                    }
-                                  }
-                                },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)),
-                            elevation: 0,
-                          ),
-                          child: loading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                      color: Colors.white, strokeWidth: 2.5),
-                                )
-                              : Text(
-                                  isEditing ? 'Update Role' : 'Add Role',
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                    ],
+          return AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            backgroundColor: Theme.of(context).cardColor,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  isEditing ? 'Edit Role' : 'Add New Role',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.bodyLarge?.color,
                   ),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.pop(ctx),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.close, size: 18, color: Colors.black54),
+                  ),
+                ),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      isEditing
+                          ? 'Edit the role details and save changes.'
+                          : 'Create a new role for your team members.',
+                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ── Role Name ──
+                    _buildSheetTextField(
+                      controller: nameController,
+                      hintText: 'Role Name',
+                      icon: Icons.badge_outlined,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Role name is required'
+                          : null,
+                    ),
+                    const SizedBox(height: 14),
+
+                    // ── Description ──
+                    _buildSheetTextField(
+                      controller: descController,
+                      hintText: 'Role Description (optional)',
+                      icon: Icons.description_outlined,
+                      maxLines: 3,
+                    ),
+                  ],
                 ),
               ),
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text('Cancel', style: TextStyle(color: Colors.grey.shade600)),
+              ),
+              ElevatedButton(
+                onPressed: loading
+                    ? null
+                    : () async {
+                        if (!formKey.currentState!.validate()) return;
+                        setDialogState(() => loading = true);
+                        try {
+                          if (isEditing) {
+                            await RoleService.updateRole(
+                              id: id,
+                              name: nameController.text,
+                              description: descController.text,
+                            );
+                          } else {
+                            await RoleService.addRole(
+                              name: nameController.text,
+                              description: descController.text,
+                            );
+                          }
+                          if (ctx.mounted) dialogNavigator.pop();
+                          rootMessenger.showSnackBar(SnackBar(
+                            content: Text(isEditing
+                                ? 'Role updated successfully'
+                                : 'Role created successfully'),
+                            backgroundColor: Colors.green,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12)),
+                          ));
+                        } catch (e) {
+                          setDialogState(() => loading = false);
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(ctx).showSnackBar(
+                              SnackBar(
+                                content: Text('Error: $e'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 0,
+                ),
+                child: loading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                            color: Colors.white, strokeWidth: 2.5),
+                      )
+                    : Text(
+                        isEditing ? 'Update Role' : 'Add Role',
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white),
+                      ),
+              ),
+            ],
           );
         },
       ),
