@@ -701,7 +701,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   Widget _buildStatCard(String value, String label, [Color? dotColor]) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
