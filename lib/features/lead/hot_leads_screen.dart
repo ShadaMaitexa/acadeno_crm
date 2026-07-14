@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/lead_service.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class HotLeadsScreen extends StatefulWidget {
   final VoidCallback onBack;
@@ -88,7 +89,7 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
                         style: TextStyle(fontWeight: FontWeight.w500)),
                   ],
                 ),
-                Icon(Icons.delete_outline, color: Colors.red.shade400),
+                Icon(LucideIcons.trash2, color: Colors.red.shade400),
               ],
             ),
           ),

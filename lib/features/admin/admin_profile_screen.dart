@@ -78,8 +78,9 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     }
   }
 
-  void _copy(String text) {
-    Clipboard.setData(ClipboardData(text: text));
+  void _copy(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Copied to clipboard'),
@@ -197,7 +198,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.account_circle,
+              Icons.person,
               size: 64,
               color: Color(0xFFB0C4DE),
             ),

@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/services/role_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
 import 'admin_profile_screen.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class RolesScreen extends StatefulWidget {
   final VoidCallback onLogout;
@@ -79,9 +80,9 @@ class _RolesScreenState extends State<RolesScreen> {
                       hintText: 'Description (optional)',
                       maxLines: 4,
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     ElevatedButton(
                       onPressed: loading
                           ? null
@@ -169,7 +170,8 @@ class _RolesScreenState extends State<RolesScreen> {
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.w500),
+        hintStyle: const TextStyle(
+            fontSize: 14, color: Colors.black, fontWeight: FontWeight.w500),
         filled: true,
         fillColor: const Color(0xFFEAF1FA), // light blue
         contentPadding:
@@ -249,65 +251,70 @@ class _RolesScreenState extends State<RolesScreen> {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                ClipPath(
-                  clipper: TopCurveClipper(),
-                  child: Container(
-                    color: AppColors.primary,
-                    width: double.infinity,
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).padding.top + 16,
-                      bottom: 72,
-                      left: 24,
-                      right: 24,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Top icons row
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const AdminProfileScreen(),
-                                  ),
-                                );
-                              },
-                              child: const Icon(Icons.account_circle_outlined,
-                                  color: Colors.white, size: 28),
-                            ),
-                            GestureDetector(
-                              onTap: widget.onLogout,
-                              child: const Icon(Icons.exit_to_app,
-                                  color: Colors.white, size: 28),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Hi Admin',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  child: ClipPath(
+                    clipper: TopCurveClipper(),
+                    child: Container(
+                      color: AppColors.primary,
+                      width: double.infinity,
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top + 16,
+                        bottom: 72,
+                        left: 24,
+                        right: 24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Top icons row
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const AdminProfileScreen(),
+                                    ),
+                                  );
+                                },
+                                child: const Icon(Icons.account_circle_outlined,
+                                    color: Colors.white, size: 28),
+                              ),
+                              GestureDetector(
+                                onTap: widget.onLogout,
+                                child: const Icon(Icons.exit_to_app,
+                                    color: Colors.white, size: 28),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Hi, Admin',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
                 ),
 
                 // ── Stats + Add button row, overlapping the curve ──
                 Positioned(
-                  top: 135,
+                  bottom: 0,
                   left: 24,
                   right: 24,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 20),
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
@@ -377,7 +384,7 @@ class _RolesScreenState extends State<RolesScreen> {
               ],
             ),
 
-            const SizedBox(height: 66),
+            const SizedBox(height: 26),
 
             // ── Body ────────────────────────────────────────────────────────
             Expanded(
@@ -443,17 +450,21 @@ class _RolesScreenState extends State<RolesScreen> {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: isActive ? const Color(0xFFEAF1FA) : Colors.transparent,
+                    color:
+                        isActive ? const Color(0xFFEAF1FA) : Colors.transparent,
                     borderRadius: isActive ? BorderRadius.circular(12) : null,
                     shape: isActive ? BoxShape.rectangle : BoxShape.circle,
                   ),
-                  child: isActive 
-                      ? const Icon(Icons.work, color: AppColors.primary, size: 20)
+                  child: isActive
+                      ? const Icon(Icons.work,
+                          color: AppColors.primary, size: 20)
                       : Stack(
                           alignment: Alignment.center,
                           children: [
-                            Icon(Icons.work, color: Colors.grey.shade400, size: 20),
-                            Icon(Icons.block, color: Colors.grey.shade400, size: 42),
+                            Icon(Icons.work,
+                                color: Colors.grey.shade400, size: 20),
+                            Icon(Icons.block,
+                                color: Colors.grey.shade400, size: 42),
                           ],
                         ),
                 ),
@@ -482,7 +493,7 @@ class _RolesScreenState extends State<RolesScreen> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: isActive 
+                      color: isActive
                           ? Theme.of(context).textTheme.bodyLarge?.color
                           : Colors.grey.shade500,
                     ),
@@ -493,7 +504,9 @@ class _RolesScreenState extends State<RolesScreen> {
                       desc,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isActive ? Colors.grey.shade600 : Colors.grey.shade400,
+                        color: isActive
+                            ? Colors.grey.shade600
+                            : Colors.grey.shade400,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -523,7 +536,8 @@ class _RolesScreenState extends State<RolesScreen> {
                   value: 'edit',
                   child: Row(
                     children: const [
-                      Icon(Icons.edit_outlined, size: 18, color: AppColors.primary),
+                      Icon(Icons.edit_outlined,
+                          size: 18, color: AppColors.primary),
                       SizedBox(width: 12),
                       Text('Edit', style: TextStyle(fontSize: 14)),
                     ],
@@ -534,12 +548,13 @@ class _RolesScreenState extends State<RolesScreen> {
                   child: Row(
                     children: [
                       Icon(
-                        isActive ? Icons.block : Icons.check_circle_outline, 
-                        size: 18, 
+                        isActive ? Icons.block : Icons.check_circle_outline,
+                        size: 18,
                         color: isActive ? Colors.orange : Colors.green,
                       ),
                       const SizedBox(width: 12),
-                      Text(isActive ? 'Deactivate' : 'Activate', style: const TextStyle(fontSize: 14)),
+                      Text(isActive ? 'Deactivate' : 'Activate',
+                          style: const TextStyle(fontSize: 14)),
                     ],
                   ),
                 ),
@@ -547,7 +562,7 @@ class _RolesScreenState extends State<RolesScreen> {
                   value: 'delete',
                   child: Row(
                     children: const [
-                      Icon(Icons.delete_outline, size: 18, color: Colors.red),
+                      Icon(LucideIcons.trash2, size: 18, color: Colors.red),
                       SizedBox(width: 12),
                       Text('Delete', style: TextStyle(fontSize: 14)),
                     ],
@@ -609,7 +624,5 @@ class _RolesScreenState extends State<RolesScreen> {
     );
   }
 }
-
-
 
 // Curve clipper moved to shared/widgets/curve_clippers.dart

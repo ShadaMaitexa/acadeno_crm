@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/services/label_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
 import 'admin_profile_screen.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 class LabelsScreen extends StatefulWidget {
   const LabelsScreen({super.key});
@@ -80,64 +81,69 @@ class _LabelsScreenState extends State<LabelsScreen> {
                 clipBehavior: Clip.none,
                 children: [
                   // Blue clipped background
-                  ClipPath(
-                    clipper: TopCurveClipper(),
-                    child: Container(
-                      color: AppColors.primary,
-                      width: double.infinity,
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).padding.top + 16,
-                        bottom: 72,
-                        left: 24,
-                        right: 24,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Top row: profile  |  logout
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const AdminProfileScreen(),
-                                    ),
-                                  );
-                                },
-                                child: const Icon(Icons.account_circle_outlined,
-                                    color: Colors.white, size: 28),
-                              ),
-                              GestureDetector(
-                                onTap: () =>
-                                    showLogoutConfirmationDialog(context),
-                                child: const Icon(Icons.exit_to_app,
-                                    color: Colors.white, size: 28),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          // Greeting
-                          const Text(
-                            'Hi Admin',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 50),
+                    child: ClipPath(
+                      clipper: TopCurveClipper(),
+                      child: Container(
+                        color: AppColors.primary,
+                        width: double.infinity,
+                        padding: EdgeInsets.only(
+                          top: MediaQuery.of(context).padding.top + 16,
+                          bottom: 72,
+                          left: 24,
+                          right: 24,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Top row: profile  |  logout
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            const AdminProfileScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: const Icon(
+                                      Icons.account_circle_outlined,
+                                      color: Colors.white,
+                                      size: 28),
+                                ),
+                                GestureDetector(
+                                  onTap: () =>
+                                      showLogoutConfirmationDialog(context),
+                                  child: const Icon(Icons.exit_to_app,
+                                      color: Colors.white, size: 28),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                        ],
+                            const SizedBox(height: 14),
+                            // Greeting
+                            const Text(
+                              'Hi, Admin',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        ),
                       ),
                     ),
                   ),
 
                   // Add-label row floating over the curve bottom
                   Positioned(
-                    bottom: -50,
+                    bottom: 0,
                     left: 24,
                     right: 24,
                     child: Row(
@@ -217,7 +223,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
               ),
 
               // Space to clear the overlapping input row
-              const SizedBox(height: 64),
+              const SizedBox(height: 14),
 
               // ── Section title row ─────────────────────────────────────────
               Padding(
@@ -326,7 +332,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
               width: 34,
               height: 34,
               child: Center(
-                child: Icon(Icons.delete_forever_outlined,
+                child: Icon(LucideIcons.trash2,
                     color: Colors.red.shade400, size: 18),
               ),
             ),

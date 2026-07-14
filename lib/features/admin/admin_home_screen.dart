@@ -138,10 +138,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     _buildDialogTextField(
                       controller: emailCtrl,
                       hintText: 'Email Address',
-                      icon: Icons.email_outlined,
+                      icon: Icons.alternate_email_rounded,
                       suffix: IconButton(
-                        onPressed: () {
-                          Clipboard.setData(
+                        onPressed: () async {
+                          await Clipboard.setData(
                               ClipboardData(text: emailCtrl.text));
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -185,8 +185,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Password',
                       icon: Icons.lock_outline,
                       suffix: IconButton(
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: passCtrl.text));
+                        onPressed: () async {
+                          await Clipboard.setData(
+                              ClipboardData(text: passCtrl.text));
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -392,14 +393,16 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     _buildDialogTextField(
                       controller: emailCtrl,
                       hintText: 'Email Address',
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress, suffix: IconButton(
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: passCtrl.text));
+                      icon: Icons.alternate_email_rounded,
+                      keyboardType: TextInputType.emailAddress,
+                      suffix: IconButton(
+                        onPressed: () async {
+                          await Clipboard.setData(
+                              ClipboardData(text: emailCtrl.text));
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text('Password copied'),
+                                content: Text('Email copied'),
                                 duration: Duration(seconds: 1),
                               ),
                             );
@@ -437,8 +440,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       hintText: 'Password',
                       icon: Icons.lock_outline,
                       suffix: IconButton(
-                        onPressed: () {
-                          Clipboard.setData(ClipboardData(text: passCtrl.text));
+                        onPressed: () async {
+                          await Clipboard.setData(
+                              ClipboardData(text: passCtrl.text));
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -641,7 +645,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'Hi Admin',
+                          'Hi, Admin',
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
@@ -659,8 +663,8 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                          child: _buildStatCard(
-                              total.toString(), 'Total Staff', Colors.blue)),
+                          child:
+                              _buildStatCard(total.toString(), 'Total Staff')),
                       const SizedBox(width: 10),
                       Expanded(
                           child: _buildStatCard(
@@ -695,7 +699,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     );
   }
 
-  Widget _buildStatCard(String value, String label, Color dotColor) {
+  Widget _buildStatCard(String value, String label, [Color? dotColor]) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
@@ -714,13 +718,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 6,
-                height: 6,
-                decoration:
-                    BoxDecoration(color: dotColor, shape: BoxShape.circle),
-              ),
-              const SizedBox(width: 4),
+              if (dotColor != null) ...[
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration:
+                      BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: 4),
+              ],
               Text(value,
                   style: const TextStyle(
                       fontSize: 20,
@@ -782,7 +788,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                   width: 12,
                   height: 12,
                   decoration: BoxDecoration(
-                    color: isOnline ? Colors.green : Colors.red,
+                    color: isOnline ? Colors.green : Colors.orange,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),

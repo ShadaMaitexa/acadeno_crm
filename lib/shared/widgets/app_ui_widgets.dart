@@ -11,7 +11,7 @@ class AdminHeader extends StatelessWidget {
 
   const AdminHeader({
     super.key,
-    this.greeting = 'Hi Admin',
+    this.greeting = 'Hi, Admin',
     this.onProfileTap,
     this.onLogoutTap,
     this.bottomOverlay,

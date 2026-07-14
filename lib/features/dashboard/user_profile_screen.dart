@@ -98,8 +98,9 @@ class _UserProfileScreenState extends State<UserProfileScreen>
     }
   }
 
-  void _copyToClipboard(String text) {
-    Clipboard.setData(ClipboardData(text: text));
+  void _copyToClipboard(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Copied to clipboard'),
@@ -253,7 +254,7 @@ class _UserProfileScreenState extends State<UserProfileScreen>
                                   value: _profile?['name'] as String? ?? '—',
                                 ),
                                 _InfoRow(
-                                  icon: Icons.email_outlined,
+                                  icon: Icons.alternate_email_rounded,
                                   label: 'Email',
                                   value: _profile?['email'] as String? ?? '—',
                                 ),

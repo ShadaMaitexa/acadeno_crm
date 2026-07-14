@@ -156,7 +156,7 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                   context: context,
                   controller: _emailController,
                   hint: 'Email',
-                  icon: Icons.email_outlined,
+                  icon: Icons.alternate_email_rounded,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 14),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/call_log_service.dart';
 import '../../core/services/device_call_log_service.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 
 String _extractCallLogNumber(CallLogEntry entry) => entry.number;
 
@@ -208,8 +209,8 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                   color: const Color(0xFFEEF0FB),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.delete_outline_rounded,
-                    color: Color(0xFFE53935), size: 36),
+                child: Icon(LucideIcons.trash2,
+                    color: const Color(0xFFE53935), size: 36),
               ),
               const SizedBox(height: 24),
               const Text(
@@ -410,7 +411,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
             ),
             if (log.id.isNotEmpty)
               ListTile(
-                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                leading: Icon(LucideIcons.trash2, color: Colors.red),
                 title: const Text('Delete Log',
                     style: TextStyle(color: Colors.red)),
                 onTap: () async {
@@ -465,13 +466,13 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
             ),
           if (!_selectionMode && _permStatus == CallLogPermissionStatus.granted && _deviceLogs.isNotEmpty)
             IconButton(
-              icon: Icon(Icons.delete_outline, color: Colors.red.shade400),
+              icon: Icon(LucideIcons.trash2, color: Colors.red.shade400),
               tooltip: 'Delete',
               onPressed: _toggleSelectionMode,
             ),
           if (_selectionMode && selectedCount > 0)
             IconButton(
-              icon: const Icon(Icons.delete_rounded, color: Colors.red),
+              icon: Icon(LucideIcons.trash2, color: Colors.red),
               tooltip: 'Delete selected',
               onPressed: _showClearHistoryDialog,
             ),
