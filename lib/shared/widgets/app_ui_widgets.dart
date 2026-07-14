@@ -113,7 +113,8 @@ class StatCard extends StatelessWidget {
               Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                decoration:
+                    BoxDecoration(color: dotColor, shape: BoxShape.circle),
               ),
               const SizedBox(width: 6),
               Text(
@@ -314,11 +315,13 @@ Widget buildFormField({
   String? Function(String?)? validator,
   Widget? suffix,
   bool enabled = true,
+  Color fillColor = const Color(0xFFEAF1FA),
+  double borderRadius = 50,
 }) {
   return Container(
     decoration: BoxDecoration(
-      color: const Color(0xFFEAF1FA),
-      borderRadius: BorderRadius.circular(16),
+      color: fillColor,
+      borderRadius: BorderRadius.circular(borderRadius),
       border: Border.all(color: const Color(0xFFE8ECF0)),
       boxShadow: [
         BoxShadow(
@@ -343,8 +346,28 @@ Widget buildFormField({
             ? Icon(icon, color: Colors.grey.shade400, size: 20)
             : null,
         suffixIcon: suffix,
-        border: InputBorder.none,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide.none,
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide.none,
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     ),
   );
@@ -356,28 +379,39 @@ Widget buildPrimaryButton({
   required VoidCallback? onPressed,
   bool loading = false,
 }) {
-  return SizedBox(
+  return Container(
     width: double.infinity,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(50),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.12),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
     child: ElevatedButton(
       onPressed: loading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         elevation: 0,
       ),
       child: loading
           ? const SizedBox(
               height: 22,
               width: 22,
-              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+              child: CircularProgressIndicator(
+                  color: Colors.white, strokeWidth: 2.5),
             )
           : Text(
               label,
               style: const TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
                 color: Colors.white,
+                fontWeight: FontWeight.normal,
               ),
             ),
     ),

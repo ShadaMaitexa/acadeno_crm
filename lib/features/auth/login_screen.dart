@@ -164,134 +164,157 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: Column(
+      body: Stack(
         children: [
-          ClipPath(
-            clipper: TopCurveClipper(),
-            child: Container(
-              color: AppColors.primary,
-              width: double.infinity,
-              padding: EdgeInsets.only(
-                top: MediaQuery.of(context).padding.top + 40,
-                bottom: 60,
-                left: 24,
-                right: 24,
-              ),
-              child: const Column(
-                children: [
-                  Text(
-                    'Welcome Back!',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+          // Main Content
+          Column(
+            children: [
+              ClipPath(
+                clipper: TopCurveClipper(),
+                child: Container(
+                  color: AppColors.primary,
+                  width: double.infinity,
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).padding.top + 40,
+                    bottom: 60,
+                    left: 24,
+                    right: 24,
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    'Acadeno',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Please sign in to continue',
-                    style: TextStyle(fontSize: 13, color: Colors.white70),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Email',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87),
-                    ),
-                    const SizedBox(height: 8),
-                    buildFormField(
-                      context: context,
-                      controller: _emailController,
-                      hint: '', // Removed hint to match design
-                      icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (v) {
-                        if (v == null || v.trim().isEmpty) {
-                          return 'Please enter your email';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(v.trim())) {
-                          return 'Please enter a valid email';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Password',
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87),
-                    ),
-                    const SizedBox(height: 8),
-                    buildFormField(
-                      context: context,
-                      controller: _passwordController,
-                      hint: '',
-                      icon: Icons.lock_outline,
-                      obscureText: _obscurePassword,
-                      suffix: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off_outlined
-                              : Icons.visibility_outlined,
-                          color: Colors.grey,
-                          size: 20,
-                        ),
-                        onPressed: () => setState(
-                            () => _obscurePassword = !_obscurePassword),
-                      ),
-                      validator: (v) => (v == null || v.isEmpty)
-                          ? 'Please enter your password'
-                          : null,
-                    ),
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: _showForgotPasswordDialog,
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.primary,
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: const Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                              fontSize: 13, fontWeight: FontWeight.w600),
+                  child: const Column(
+                    children: [
+                      Text(
+                        'Welcome Back !',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    buildPrimaryButton(
-                      label: 'Sign In',
-                      loading: _loading,
-                      onPressed: _login,
-                    ),
-                  ],
+                      SizedBox(height: 4),
+                      Text(
+                        'Acadeno',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Please sign in to continue',
+                        style: TextStyle(fontSize: 13, color: Colors.white70),
+                      ),
+                    ],
+                  ),
                 ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const Text(
+                          'Email',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        buildFormField(
+                          context: context,
+                          controller: _emailController,
+                          hint: '', // Removed hint to match design
+                          borderRadius: 50,
+                          keyboardType: TextInputType.emailAddress,
+                          fillColor: Colors.white,
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                .hasMatch(v.trim())) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Password',
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        buildFormField(
+                          context: context,
+                          controller: _passwordController,
+                          hint: '',
+                          borderRadius: 50,
+                          obscureText: _obscurePassword,
+                          fillColor: Colors.white,
+                          suffix: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword),
+                          ),
+                          validator: (v) => (v == null || v.isEmpty)
+                              ? 'Please enter your password'
+                              : null,
+                        ),
+                        const SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: _showForgotPasswordDialog,
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              padding: EdgeInsets.zero,
+                            ),
+                            child: const Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        buildPrimaryButton(
+                          label: 'Sign In',
+                          loading: _loading,
+                          onPressed: _login,
+                        ),
+                        const SizedBox(height: 113),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          // Bottom White Upward Curve
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: ClipPath(
+              clipper: BottomCurveClipper(),
+              child: Container(
+                height: 80,
+                color: Colors.white,
               ),
             ),
           ),

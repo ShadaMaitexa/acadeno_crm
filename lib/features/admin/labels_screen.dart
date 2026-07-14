@@ -48,28 +48,18 @@ class _LabelsScreenState extends State<LabelsScreen> {
     }
   }
 
-  void _showDeleteDialog(String id, String name) async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Delete Label'),
-        content: Text('Delete "$name"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
+  Future<void> _deleteLabel(String id) async {
+    try {
       await LabelService.deleteLabel(id);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Delete failed: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -132,7 +122,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
                           const SizedBox(height: 14),
                           // Greeting
                           const Text(
-                            'Hii Admin',
+                            'Hi Admin',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 24,
@@ -147,7 +137,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
 
                   // Add-label row floating over the curve bottom
                   Positioned(
-                    bottom: -15,
+                    bottom: -50,
                     left: 24,
                     right: 24,
                     child: Row(
@@ -158,11 +148,12 @@ class _LabelsScreenState extends State<LabelsScreen> {
                             height: 52,
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(28),
+                              borderRadius: BorderRadius.circular(50),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.10),
                                   blurRadius: 14,
+                                  spreadRadius: 1,
                                   offset: const Offset(0, 6),
                                 ),
                               ],
@@ -226,7 +217,7 @@ class _LabelsScreenState extends State<LabelsScreen> {
               ),
 
               // Space to clear the overlapping input row
-              const SizedBox(height: 44),
+              const SizedBox(height: 64),
 
               // ── Section title row ─────────────────────────────────────────
               Padding(
@@ -299,28 +290,20 @@ class _LabelsScreenState extends State<LabelsScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 12,
+            spreadRadius: 1,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Row(
         children: [
           // Folder icon container
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: const Icon(Icons.folder_rounded,
-                color: AppColors.primary, size: 20),
-          ),
+          Icon(Icons.label, color: AppColors.primary, size: 20),
 
           const SizedBox(width: 14),
 
@@ -338,16 +321,14 @@ class _LabelsScreenState extends State<LabelsScreen> {
 
           // Delete icon
           GestureDetector(
-            onTap: () => _showDeleteDialog(id, name),
-            child: Container(
+            onTap: () => _deleteLabel(id),
+            child: SizedBox(
               width: 34,
               height: 34,
-              decoration: BoxDecoration(
-                color: Colors.red.shade50,
-                borderRadius: BorderRadius.circular(10),
+              child: Center(
+                child: Icon(Icons.delete_forever_outlined,
+                    color: Colors.red.shade400, size: 18),
               ),
-              child: Icon(Icons.delete_outline,
-                  color: Colors.red.shade400, size: 18),
             ),
           ),
         ],

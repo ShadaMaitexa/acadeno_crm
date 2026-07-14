@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/admin_service.dart';
 import '../../core/services/role_service.dart';
-import '../../shared/widgets/app_ui_widgets.dart';
 import '../../shared/widgets/curve_clippers.dart';
 import '../auth/logout_screen.dart';
 import 'admin_profile_screen.dart';
@@ -20,6 +20,7 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   int _currentIndex = 0;
+  int _staffCount = 0;
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
 
@@ -27,13 +28,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     required TextEditingController controller,
     required String hintText,
     IconData? icon,
+    Widget? suffix,
     bool obscureText = false,
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: const Color(0xFFEAF1FA),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -50,13 +52,14 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         validator: validator,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: const TextStyle(fontSize: 14, color: Colors.black38),
+          hintStyle: const TextStyle(fontSize: 14, color: Colors.black),
           filled: true,
-          fillColor: Colors.transparent,
+          fillColor: const Color(0xFFEAF1FA),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           prefixIcon:
-              icon != null ? Icon(icon, size: 20, color: Colors.black38) : null,
+              icon != null ? Icon(icon, size: 20, color: Colors.black) : null,
+          suffixIcon: suffix,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide.none,
@@ -136,6 +139,23 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       controller: emailCtrl,
                       hintText: 'Email Address',
                       icon: Icons.email_outlined,
+                      suffix: IconButton(
+                        onPressed: () {
+                          Clipboard.setData(
+                              ClipboardData(text: emailCtrl.text));
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Email copied'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.copy_outlined,
+                            color: Colors.black, size: 20),
+                        splashRadius: 20,
+                      ),
                       keyboardType: TextInputType.emailAddress,
                       validator: (v) {
                         if (v == null || v.trim().isEmpty)
@@ -164,6 +184,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       controller: passCtrl,
                       hintText: 'Password',
                       icon: Icons.lock_outline,
+                      suffix: IconButton(
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: passCtrl.text));
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Password copied'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.copy_outlined,
+                            color: Colors.black, size: 20),
+                        splashRadius: 20,
+                      ),
                       obscureText: true,
                       validator: (v) => (v == null || v.length < 6)
                           ? 'Min 6 characters'
@@ -187,7 +223,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     else
                       Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
+                          color: const Color(0xFFEAF1FA),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
@@ -202,10 +238,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           decoration: InputDecoration(
                             hintText: 'Select Role',
                             filled: true,
-                            fillColor: Colors.transparent,
-                            prefixIcon: const Icon(Icons.badge_outlined,
-                                color: Colors.black38, size: 20),
-                            contentPadding: const EdgeInsets.symmetric(
+                            fillColor: Color(0xFFEAF1FA),
+                            prefixIcon: Icon(Icons.badge_outlined,
+                                color: Colors.black, size: 20),
+                            contentPadding: EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -302,6 +338,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     final nameCtrl = TextEditingController(text: data['name'] ?? '');
     final emailCtrl = TextEditingController(text: data['email'] ?? '');
     final phoneCtrl = TextEditingController(text: data['phone'] ?? '');
+    final passCtrl = TextEditingController(text: data['password'] ?? '');
     String? selectedRole = data['role'];
     if (roles.isNotEmpty && !roles.contains(selectedRole)) {
       selectedRole = roles.first;
@@ -356,7 +393,22 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       controller: emailCtrl,
                       hintText: 'Email Address',
                       icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.emailAddress, suffix: IconButton(
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: passCtrl.text));
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Password copied'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.copy_outlined,
+                            color: Colors.black, size: 20),
+                        splashRadius: 20,
+                      ),
                       validator: (v) {
                         if (v == null || v.trim().isEmpty)
                           return 'Email is required';
@@ -380,10 +432,36 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
+                    _buildDialogTextField(
+                      controller: passCtrl,
+                      hintText: 'Password',
+                      icon: Icons.lock_outline,
+                      suffix: IconButton(
+                        onPressed: () {
+                          Clipboard.setData(ClipboardData(text: passCtrl.text));
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Password copied'),
+                                duration: Duration(seconds: 1),
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.copy_outlined,
+                            color: Colors.black, size: 20),
+                        splashRadius: 20,
+                      ),
+                      obscureText: true,
+                      validator: (v) => (v == null || v.length < 6)
+                          ? 'Min 6 characters'
+                          : null,
+                    ),
+                    const SizedBox(height: 12),
                     if (roles.isNotEmpty)
                       Container(
                         decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
+                          color: const Color(0xFFEAF1FA),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
@@ -398,9 +476,9 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                           decoration: InputDecoration(
                             hintText: 'Select Role',
                             filled: true,
-                            fillColor: Colors.transparent,
+                            fillColor: const Color(0xFFEAF1FA),
                             prefixIcon: const Icon(Icons.badge_outlined,
-                                color: Colors.black38, size: 20),
+                                color: Colors.black, size: 20),
                             contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             border: OutlineInputBorder(
@@ -513,6 +591,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         final active = docs.where((d) => d.data()['status'] == 'active').length;
         final offline =
             docs.where((d) => d.data()['status'] == 'offline').length;
+        if (_staffCount != total) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            setState(() => _staffCount = total);
+          });
+        }
 
         return Column(
           children: [
@@ -584,7 +668,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                           child: _buildStatCard(
-                              offline.toString(), 'Offline', Colors.red)),
+                              offline.toString(), 'Offline', Colors.orange)),
                     ],
                   ),
                 ),
@@ -729,6 +813,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert, color: Colors.grey),
+            color: Colors.white,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onSelected: (value) async {
@@ -845,7 +930,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      floatingActionButton: _currentIndex == 0
+      floatingActionButton: _currentIndex == 0 && _staffCount > 0
           ? FloatingActionButton(
               onPressed: _showAddUserDialog,
               backgroundColor: AppColors.primary,

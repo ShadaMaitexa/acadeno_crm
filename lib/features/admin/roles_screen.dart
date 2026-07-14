@@ -34,7 +34,8 @@ class _RolesScreenState extends State<RolesScreen> {
           final rootMessenger = ScaffoldMessenger.of(context);
 
           return AlertDialog(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             backgroundColor: Theme.of(context).cardColor,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,7 +59,8 @@ class _RolesScreenState extends State<RolesScreen> {
                           : Colors.grey.shade100,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close, size: 18, color: Colors.black54),
+                    child: const Icon(Icons.close,
+                        size: 18, color: Colors.black54),
                   ),
                 ),
               ],
@@ -74,7 +76,8 @@ class _RolesScreenState extends State<RolesScreen> {
                       isEditing
                           ? 'Edit the role details and save changes.'
                           : 'Create a new role for your team members.',
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      style:
+                          TextStyle(fontSize: 13, color: Colors.grey.shade600),
                     ),
                     const SizedBox(height: 24),
 
@@ -103,7 +106,8 @@ class _RolesScreenState extends State<RolesScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx),
-                child: Text('Cancel', style: TextStyle(color: Colors.grey.shade600)),
+                child: Text('Cancel',
+                    style: TextStyle(color: Colors.grey.shade600)),
               ),
               ElevatedButton(
                 onPressed: loading
@@ -148,8 +152,10 @@ class _RolesScreenState extends State<RolesScreen> {
                       },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   elevation: 0,
                 ),
                 child: loading
@@ -293,7 +299,7 @@ class _RolesScreenState extends State<RolesScreen> {
                       right: 24,
                     ),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // Top icons row
                         Row(
@@ -320,7 +326,7 @@ class _RolesScreenState extends State<RolesScreen> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'Hii Admin',
+                          'Hi Admin',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 24,
@@ -565,14 +571,12 @@ class _RolesScreenState extends State<RolesScreen> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: SizedBox(
         width: 36,
         height: 36,
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(10),
+        child: Center(
+          child: Icon(icon, color: color, size: 18),
         ),
-        child: Icon(icon, color: color, size: 18),
       ),
     );
   }

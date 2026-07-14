@@ -15,8 +15,8 @@ class AdminProfileScreen extends StatefulWidget {
 }
 
 class _AdminProfileScreenState extends State<AdminProfileScreen> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController(text: '••••••••');
+  final _emailController = TextEditingController(text: 'admin@acadeno.in');
+  final _passwordController = TextEditingController(text: 'admin123');
   bool _loading = true;
   bool _saving = false;
   String _role = 'admin';
@@ -41,7 +41,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     if (!mounted) return;
     _uid = AuthService.currentUser?.uid ?? '';
     _displayName = profile?['name'] as String? ?? 'Admin';
-    _emailController.text = profile?['email'] as String? ?? '';
+    _emailController.text = profile?['email'] as String? ?? 'admin@acadeno.in';
     _role = profile?['role'] as String? ?? 'admin';
     setState(() => _loading = false);
   }
@@ -107,7 +107,8 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     final statusBarH = MediaQuery.of(context).padding.top;
     const headerPaddingBottom = 72.0; // extra so card overlaps nicely
 
-    return Column(
+    return SingleChildScrollView(
+        child: Column(
       children: [
         // ── Curved blue header ──────────────────────────────────────────────
         Stack(
@@ -133,8 +134,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                         const Icon(Icons.account_circle_outlined,
                             color: Colors.white, size: 28),
                         GestureDetector(
-                          onTap: () =>
-                              showLogoutConfirmationDialog(context),
+                          onTap: () => showLogoutConfirmationDialog(context),
                           child: const Icon(Icons.exit_to_app,
                               color: Colors.white, size: 28),
                         ),
@@ -156,7 +156,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
 
             // ── White card overlapping the header ───────────────────────────
             Positioned(
-              bottom: -100,
+              top: 180,
               left: 20,
               right: 20,
               child: _buildCard(),
@@ -168,17 +168,8 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         const SizedBox(height: 120),
 
         // ── Save button below card ──────────────────────────────────────────
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: buildPrimaryButton(
-            label: 'Save',
-            loading: _saving,
-            onPressed: _saveProfile,
-          ),
-        ),
-        const SizedBox(height: 24),
       ],
-    );
+    ));
   }
 
   Widget _buildCard() {
@@ -221,12 +212,18 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
           ),
           const SizedBox(height: 14),
 
-          // Password field (masked, read-only display)
+          // Password field (read-only display)
           _buildInfoField(
             icon: Icons.key_outlined,
             controller: _passwordController,
-            obscure: true,
-            onCopy: () => _copy(''),
+            obscure: false,
+            onCopy: () => _copy(_passwordController.text),
+          ),
+          const SizedBox(height: 24),
+          buildPrimaryButton(
+            label: 'Save',
+            loading: _saving,
+            onPressed: _saveProfile,
           ),
         ],
       ),
@@ -241,7 +238,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF1FA),
+        color: Color(0xFFEAF1FA),
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -254,23 +251,25 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       child: Row(
         children: [
           const SizedBox(width: 14),
-          Icon(icon, color: AppColors.primary, size: 20),
+          Icon(icon, color: Colors.black, size: 20),
           const SizedBox(width: 10),
           Expanded(
             child: TextField(
               controller: controller,
-              readOnly: !obscure,
+              readOnly: true,
               obscureText: obscure,
               style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppColors.textDark,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
+              textAlignVertical: TextAlignVertical.center,
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 14),
+                filled: true,
+                fillColor: Color(0xFFEAF1FA),
+                contentPadding: EdgeInsets.symmetric(vertical: 14),
               ),
             ),
           ),
@@ -278,8 +277,8 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             onTap: onCopy,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              child: Icon(Icons.copy_outlined,
-                  color: Colors.grey.shade400, size: 18),
+              child: const Icon(Icons.copy_outlined,
+                  color: Colors.black, size: 18),
             ),
           ),
         ],
