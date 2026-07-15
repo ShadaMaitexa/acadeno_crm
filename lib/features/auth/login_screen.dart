@@ -114,10 +114,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 context: ctx,
                 controller: emailCtrl,
                 hint: 'Enter Email',
+                fillColor: const Color(0xFFEAF1FA),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical:3 ,
+                ),
               ),
               const SizedBox(height: 20),
               buildPrimaryButton(
-                label: 'SEND RESET LINK',
+                label: 'Send Reset Link',
                 onPressed: () async {
                   final email = emailCtrl.text.trim();
                   if (email.isEmpty ||
@@ -164,6 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           // Main Content

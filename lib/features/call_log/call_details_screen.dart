@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
+import '../../core/services/lead_service.dart';
 import 'call_logs_screen.dart';
 
 class CallDetailsScreen extends StatefulWidget {
@@ -17,8 +18,16 @@ class CallDetailsScreen extends StatefulWidget {
 }
 
 class _CallDetailsScreenState extends State<CallDetailsScreen> {
-  bool _isConverted = false;
+  late bool _isConverted;
   final TextEditingController _notesController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialise from the log's existing converted flag if it came from Firestore
+    _isConverted = widget.log.isConverted ?? false;
+    _notesController.text = widget.log.notes ?? '';
+  }
 
   @override
   void dispose() {
@@ -239,10 +248,15 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                       activeTrackColor: Colors.green,
                       inactiveThumbColor: Colors.white,
                       inactiveTrackColor: Colors.grey.shade400,
-                      onChanged: (value) {
-                        setState(() {
-                          _isConverted = value;
-                        });
+                      onChanged: (value) async {
+                        setState(() => _isConverted = value);
+                        // Persist to Firestore if this log has a document ID
+                        if (widget.log.id.isNotEmpty) {
+                          await LeadService.updateLead(
+                            widget.log.id,
+                            {'converted': value},
+                          );
+                        }
                       },
                     ),
                   ],

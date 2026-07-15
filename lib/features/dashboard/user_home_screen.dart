@@ -249,6 +249,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           onTap: (index) {
             setState(() {
               _currentIndex = index;
+              if (index == 1) {
+                _selectedLog = null;
+              }
               if (index == 2) {
                 _showHotLeads = false;
                 _showAddLead = false;

@@ -31,6 +31,28 @@
 
   <title>Acadeno CRM</title>
   <link rel="manifest" href="manifest.json">
+
+  <script>
+    // Global clipboard helper — called from Flutter Dart via js_util.
+    // Uses the modern async Clipboard API which works reliably on Chrome
+    // even when the Flutter canvas does not hold browser focus.
+    window.copyToClipboard = function(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text);
+      }
+      // Legacy execCommand fallback
+      var el = document.createElement('textarea');
+      el.value = text;
+      el.style.position = 'fixed';
+      el.style.opacity = '0';
+      document.body.appendChild(el);
+      el.focus();
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      return Promise.resolve();
+    };
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>

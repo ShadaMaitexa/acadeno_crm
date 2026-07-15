@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/lead_service.dart';
+import '../call_log/call_logs_screen.dart';
+import '../call_log/call_details_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HotLeadsScreen extends StatefulWidget {
@@ -22,6 +24,9 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
   final _searchController = TextEditingController();
   String _query = '';
 
+  // When non-null, show CallDetailsScreen for this lead
+  CallLogItem? _selectedLead;
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -30,6 +35,14 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Show call details if a lead is selected
+    if (_selectedLead != null) {
+      return CallDetailsScreen(
+        log: _selectedLead!,
+        onBack: () => setState(() => _selectedLead = null),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -165,8 +178,28 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
       BuildContext context, String id, Map<String, dynamic> data) {
     final name = data['name'] as String? ?? 'Unknown';
     final phone = data['phone'] as String? ?? '';
+    final notes = data['notes'] as String? ?? '';
+    final dateTime = data['dateTime'] as String? ?? data['date'] as String? ?? '';
+    final duration = data['duration'] as String? ?? '';
+    final callType = data['callType'] as String? ?? 'outgoing';
 
-    return Container(
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedLead = CallLogItem(
+            id: id,
+            name: name,
+            phoneNumber: phone,
+            dateTime: dateTime,
+            duration: duration,
+            callType: callType,
+            activeTag: 'Hot leads',
+            isConverted: data['converted'] as bool? ?? false,
+            notes: notes,
+          );
+        });
+      },
+      child: Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -254,7 +287,8 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
           ),
         ],
       ),
-    );
+      ), // Container
+    ); // GestureDetector
   }
 
   Widget _actionButton({

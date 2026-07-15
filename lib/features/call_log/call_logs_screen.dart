@@ -19,6 +19,8 @@ class CallLogItem {
   final String duration;
   final String callType; // 'outgoing' | 'answered' | 'missed'
   String? activeTag;
+  final bool? isConverted;  // Firestore 'converted' field
+  final String? notes;      // Firestore 'notes' field
 
   CallLogItem({
     this.id = '',
@@ -28,6 +30,8 @@ class CallLogItem {
     required this.duration,
     required this.callType,
     this.activeTag,
+    this.isConverted,
+    this.notes,
   });
 
   factory CallLogItem.fromDevice(CallLogEntry e, {String? savedTag}) {

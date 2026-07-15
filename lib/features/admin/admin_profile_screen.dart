@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:js_util' if (dart.library.io) 'dart:io' as js_util;
 import '../../core/constants/app_colors.dart';
 import '../../core/services/admin_service.dart';
 import '../../core/services/auth_service.dart';
@@ -78,9 +81,30 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     }
   }
 
-  void _copy(String text) async {
-    await Clipboard.setData(ClipboardData(text: text));
+  Future<void> _copy(String text) async {
+    try {
+      if (kIsWeb) {
+        // Call the global JS function defined in web/index.html
+        // This uses navigator.clipboard.writeText() directly in the
+        // user-gesture context, which works reliably on Chrome.
+        final promise = js_util.callMethod(
+          js_util.globalThis,
+          'copyToClipboard',
+          [text],
+        );
+        await js_util.promiseToFuture<void>(promise);
+      } else {
+        await Clipboard.setData(ClipboardData(text: text));
+      }
+    } catch (_) {
+      // Fallback: attempt standard clipboard even if JS call failed
+      try {
+        await Clipboard.setData(ClipboardData(text: text));
+      } catch (_) {}
+    }
+
     if (!mounted) return;
+    ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Copied to clipboard'),
@@ -209,7 +233,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
           _buildInfoField(
             icon: Icons.alternate_email_rounded,
             controller: _emailController,
-            onCopy: () => _copy(_emailController.text),
+            onCopy: () async => await _copy(_emailController.text),
           ),
           const SizedBox(height: 14),
 
@@ -218,7 +242,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             icon: Icons.key_outlined,
             controller: _passwordController,
             obscure: false,
-            onCopy: () => _copy(_passwordController.text),
+            onCopy: () async => await _copy(_passwordController.text),
           ),
           const SizedBox(height: 24),
           buildPrimaryButton(
@@ -274,12 +298,16 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               ),
             ),
           ),
-          GestureDetector(
-            onTap: onCopy,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              child: const Icon(Icons.copy_outlined,
-                  color: Colors.black, size: 18),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: onCopy,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                child: const Icon(Icons.copy_outlined,
+                    color: Colors.black, size: 18),
+              ),
             ),
           ),
         ],

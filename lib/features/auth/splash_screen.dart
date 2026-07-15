@@ -99,16 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
                     fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Acadeno',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                ],
+                ]
               ),
             ),
           ),

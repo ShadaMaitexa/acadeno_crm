@@ -317,6 +317,7 @@ Widget buildFormField({
   bool enabled = true,
   Color fillColor = const Color(0xFFEAF1FA),
   double borderRadius = 50,
+  EdgeInsetsGeometry? contentPadding,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -340,6 +341,8 @@ Widget buildFormField({
       validator: validator,
       style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: fillColor,
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
         prefixIcon: icon != null
@@ -366,7 +369,7 @@ Widget buildFormField({
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide.none,
         ),
-        contentPadding:
+        contentPadding: contentPadding ??
             const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       ),
     ),
