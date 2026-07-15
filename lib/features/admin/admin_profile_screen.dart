@@ -77,29 +77,31 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       if (mounted) setState(() => _saving = false);
     }
   }
-Future<void> _copy(String text) async {
-  try {
-    await Clipboard.setData(
-      ClipboardData(text: text),
-    );
-  } catch (_) {}
 
-  if (!mounted) return;
+  Future<void> _copy(String text) async {
+    try {
+      await Clipboard.setData(
+        ClipboardData(text: text),
+      );
+    } catch (_) {}
 
-  ScaffoldMessenger.of(context).clearSnackBars();
+    if (!mounted) return;
 
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: const Text("Copied to clipboard"),
-      behavior: SnackBarBehavior.floating,
-      backgroundColor: AppColors.primary,
-      duration: const Duration(seconds: 1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text("Copied to clipboard"),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.primary,
+        duration: const Duration(seconds: 1),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -282,16 +284,13 @@ Future<void> _copy(String text) async {
               ),
             ),
           ),
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(8),
-              onTap: onCopy,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                child: const Icon(Icons.copy_outlined,
-                    color: Colors.black, size: 18),
-              ),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onCopy,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: const Icon(Icons.copy_outlined,
+                  color: Colors.black, size: 18),
             ),
           ),
         ],

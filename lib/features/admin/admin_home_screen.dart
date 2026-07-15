@@ -339,7 +339,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     final nameCtrl = TextEditingController(text: data['name'] ?? '');
     final emailCtrl = TextEditingController(text: data['email'] ?? '');
     final phoneCtrl = TextEditingController(text: data['phone'] ?? '');
-    final passCtrl = TextEditingController(text: data['password'] ?? '');
+    // Password should not be read from Firestore. Most apps don’t store it there.
+    // Leave empty so user can optionally type a new one.
+    final passCtrl = TextEditingController(text: '');
+
     String? selectedRole = data['role'];
     if (roles.isNotEmpty && !roles.contains(selectedRole)) {
       selectedRole = roles.first;
@@ -656,37 +659,38 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     ),
                   ),
                 ),
-Positioned(
-  top: 150,
-  left: 24,
-  right: 24,
-  child: SizedBox(
-    height: 90,
-    child: Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(total.toString(), 'Total Staff'),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildStatCard(
-            active.toString(),
-            'Active',
-            Colors.green,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _buildStatCard(
-            offline.toString(),
-            'Offline',
-            Colors.orange,
-          ),
-        ),
-      ],
-    ),
-  ),
-),
+                Positioned(
+                  top: 150,
+                  left: 24,
+                  right: 24,
+                  child: SizedBox(
+                    height: 90,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child:
+                              _buildStatCard(total.toString(), 'Total Staff'),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _buildStatCard(
+                            active.toString(),
+                            'Active',
+                            Colors.green,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _buildStatCard(
+                            offline.toString(),
+                            'Offline',
+                            Colors.orange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 80),
