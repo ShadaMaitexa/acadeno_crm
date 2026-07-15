@@ -177,17 +177,14 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
             ),
 
             // ── White card overlapping the header ───────────────────────────
-            Positioned(
-              top: 180,
-              left: 20,
-              right: 20,
+            Padding(
+              padding: const EdgeInsets.only(top: 180, left: 20, right: 20),
               child: _buildCard(),
             ),
           ],
         ),
 
         // Space for the card overflow
-        const SizedBox(height: 120),
 
         // ── Save button below card ──────────────────────────────────────────
       ],

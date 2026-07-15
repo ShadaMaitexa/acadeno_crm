@@ -190,7 +190,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     _buildDialogTextField(
                       controller: passCtrl,
                       hintText: 'Password',
-                      icon: Icons.lock_outline,
+                      icon: Icons.key_outlined,
                       suffix: IconButton(
                         onPressed: () async {
                           if (passCtrl.text.isEmpty) {
