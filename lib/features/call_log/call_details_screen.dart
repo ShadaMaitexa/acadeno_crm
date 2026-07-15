@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/lead_service.dart';
+import '../../core/services/call_log_service.dart';
+import '../../core/services/device_call_log_service.dart';
 import 'call_logs_screen.dart';
 
 class CallDetailsScreen extends StatefulWidget {
@@ -35,6 +37,19 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
     super.dispose();
   }
 
+  Future<void> _openContactAction(bool whatsapp) async {
+    final opened = whatsapp
+        ? await DeviceCallLogService.openWhatsApp(widget.log.phoneNumber)
+        : await DeviceCallLogService.openDialer(widget.log.phoneNumber);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(whatsapp
+            ? 'Unable to open WhatsApp for this number.'
+            : 'Unable to open the phone dialer.'),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Determine icon based on call type, matching the main list
@@ -67,7 +82,8 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
+          icon:
+              Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
           onPressed: widget.onBack,
         ),
         title: Text(
@@ -88,7 +104,8 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
               // Main Info Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
@@ -140,18 +157,26 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.calendar_today_outlined, size: 14, color: Colors.grey),
+                        const Icon(Icons.calendar_today_outlined,
+                            size: 14, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(
                           widget.log.dateTime.toUpperCase(),
-                          style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500),
                         ),
                         const SizedBox(width: 16),
-                        const Icon(Icons.timer_outlined, size: 14, color: Colors.grey),
+                        const Icon(Icons.timer_outlined,
+                            size: 14, color: Colors.grey),
                         const SizedBox(width: 4),
                         Text(
                           widget.log.duration,
-                          style: const TextStyle(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: Colors.grey,
+                              fontWeight: FontWeight.w500),
                         ),
                       ],
                     ),
@@ -160,7 +185,7 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () => _openContactAction(false),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFEFF6FF),
                               foregroundColor: AppColors.primary,
@@ -171,13 +196,14 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                             icon: const Icon(Icons.phone, size: 18),
-                            label: const Text('Call', style: TextStyle(fontWeight: FontWeight.bold)),
+                            label: const Text('Call',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () => _openContactAction(true),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFFF0FDF4),
                               foregroundColor: const Color(0xFF16A34A),
@@ -187,8 +213,10 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                               ),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            icon: const Icon(Icons.message, size: 18), // A simple chat icon for WhatsApp
-                            label: const Text('WhatsApp', style: TextStyle(fontWeight: FontWeight.bold)),
+                            icon: const Icon(Icons.message,
+                                size: 18), // A simple chat icon for WhatsApp
+                            label: const Text('WhatsApp',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
                           ),
                         ),
                       ],
@@ -197,7 +225,7 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               // Deal Status Card
               Container(
                 padding: const EdgeInsets.all(16),
@@ -226,7 +254,8 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                       child: Icon(
                         _isConverted
                             ? Icons.check
-                            : Icons.horizontal_rule, // Using a dash/line for unconverted
+                            : Icons
+                                .horizontal_rule, // Using a dash/line for unconverted
                         color: _isConverted ? Colors.green : Colors.grey,
                         size: 20,
                       ),
@@ -237,7 +266,9 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                        color: _isConverted ? Colors.black87 : Colors.grey.shade600,
+                        color: _isConverted
+                            ? Colors.black87
+                            : Colors.grey.shade600,
                         letterSpacing: 1.2,
                       ),
                     ),
@@ -249,12 +280,44 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                       inactiveThumbColor: Colors.white,
                       inactiveTrackColor: Colors.grey.shade400,
                       onChanged: (value) async {
+                        final previousValue = _isConverted;
                         setState(() => _isConverted = value);
-                        // Persist to Firestore if this log has a document ID
-                        if (widget.log.id.isNotEmpty) {
-                          await LeadService.updateLead(
-                            widget.log.id,
-                            {'converted': value},
+                        try {
+                          if (widget.log.isLead) {
+                            await LeadService.updateLead(
+                              widget.log.id,
+                              {'converted': value},
+                            );
+                          } else if (widget.log.id.isNotEmpty) {
+                            await CallLogService.updateConverted(
+                              widget.log.id,
+                              value,
+                            );
+                          } else {
+                            widget.log.id = await CallLogService.addCallLog(
+                              name: widget.log.name,
+                              phone: widget.log.phoneNumber,
+                              dateTime: widget.log.dateTime,
+                              duration: widget.log.duration,
+                              callType: widget.log.callType,
+                              tag: widget.log.activeTag,
+                              converted: value,
+                              deviceLogKey: CallLogService.deviceLogKey(
+                                phone: widget.log.phoneNumber,
+                                timestamp: widget.log.timestamp,
+                                duration: widget.log.duration,
+                                callType: widget.log.callType,
+                              ),
+                            );
+                          }
+                          widget.log.isConverted = value;
+                        } catch (_) {
+                          if (!mounted) return;
+                          setState(() => _isConverted = previousValue);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Unable to save conversion status.'),
+                            ),
                           );
                         }
                       },
@@ -267,7 +330,8 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
               // Notes Card
               Container(
                 height: 120,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(16),
@@ -284,7 +348,12 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(top: 12.0),
-                      child: Icon(Icons.insert_drive_file_outlined, color: Theme.of(context).iconTheme.color?.withOpacity(0.5), size: 24),
+                      child: Icon(Icons.insert_drive_file_outlined,
+                          color: Theme.of(context)
+                              .iconTheme
+                              .color
+                              ?.withOpacity(0.5),
+                          size: 24),
                     ),
                     const SizedBox(width: 12),
                     Expanded(

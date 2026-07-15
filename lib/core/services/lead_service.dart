@@ -12,6 +12,7 @@ class LeadService {
     String? type,
   }) {
     Query<Map<String, dynamic>> q = _db.collection('leads');
+    q = q.where('createdBy', isEqualTo: _uid);
     if (type != null) {
       q = q.where('type', isEqualTo: type);
     }
@@ -42,5 +43,59 @@ class LeadService {
 
   static Future<void> updateLead(String id, Map<String, dynamic> data) async {
     await _db.collection('leads').doc(id).update(data);
+  }
+
+  /// Creates a lead from a device call, or changes the existing lead from the
+  /// same call to the newly selected queue.
+  static Future<void> moveCallLogToLead({
+    required String sourceCallKey,
+    required String name,
+    required String phone,
+    required String dateTime,
+    required String duration,
+    required String callType,
+    required String type,
+  }) async {
+    final existing = await _db
+        .collection('leads')
+        .where('sourceCallKey', isEqualTo: '$_uid:$sourceCallKey')
+        .limit(1)
+        .get();
+
+    final data = <String, dynamic>{
+      'name': name.trim(),
+      'phone': phone.trim(),
+      'dateTime': dateTime,
+      'duration': duration,
+      'callType': callType,
+      'type': type,
+      'createdBy': _uid,
+      'sourceCallKey': '$_uid:$sourceCallKey',
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    if (existing.docs.isEmpty) {
+      await _db.collection('leads').add({
+        ...data,
+        'email': '',
+        'notes': '',
+        'converted': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } else {
+      await existing.docs.first.reference.update(data);
+    }
+  }
+
+  static Future<void> removeCallLogLead(String sourceCallKey) async {
+    final existing = await _db
+        .collection('leads')
+        .where('sourceCallKey', isEqualTo: '$_uid:$sourceCallKey')
+        .get();
+    final batch = _db.batch();
+    for (final doc in existing.docs) {
+      batch.delete(doc.reference);
+    }
+    await batch.commit();
   }
 }

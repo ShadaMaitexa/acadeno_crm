@@ -73,14 +73,31 @@ class DeviceCallLogService {
     if (defaultTargetPlatform != TargetPlatform.android) return [];
 
     try {
-      final List<dynamic> raw =
-          await _channel.invokeMethod('getCallLogs');
+      final List<dynamic> raw = await _channel.invokeMethod('getCallLogs');
       return raw
           .cast<Map<dynamic, dynamic>>()
           .map(CallLogEntry.fromMap)
           .toList();
     } on PlatformException catch (_) {
       return [];
+    }
+  }
+
+  static Future<bool> openDialer(String phoneNumber) =>
+      _openContactAction('openDialer', phoneNumber);
+
+  static Future<bool> openWhatsApp(String phoneNumber) =>
+      _openContactAction('openWhatsApp', phoneNumber);
+
+  static Future<bool> _openContactAction(
+      String method, String phoneNumber) async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return false;
+    try {
+      return await _channel
+              .invokeMethod<bool>(method, {'phone': phoneNumber}) ??
+          false;
+    } on PlatformException {
+      return false;
     }
   }
 

@@ -8,12 +8,14 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 class HotLeadsScreen extends StatefulWidget {
   final VoidCallback onBack;
-  final VoidCallback onAdd;
+  final String leadType;
+  final String title;
 
   const HotLeadsScreen({
     super.key,
     required this.onBack,
-    required this.onAdd,
+    this.leadType = 'hot',
+    this.title = 'Hot leads',
   });
 
   @override
@@ -31,6 +33,101 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _showAddLeadDialog() {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final phoneController = TextEditingController();
+    final emailController = TextEditingController();
+    final notesController = TextEditingController();
+    var saving = false;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Add Lead'),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Name'),
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Name is required'
+                        : null,
+                  ),
+                  TextFormField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(labelText: 'Phone'),
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Phone is required'
+                        : null,
+                  ),
+                  TextFormField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(labelText: 'Email (optional)'),
+                  ),
+                  TextFormField(
+                    controller: notesController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(labelText: 'Notes (optional)'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: saving ? null : () => Navigator.pop(dialogContext),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      setDialogState(() => saving = true);
+                      try {
+                        await LeadService.addLead(
+                          name: nameController.text,
+                          phone: phoneController.text,
+                          email: emailController.text,
+                          notes: notesController.text,
+                        );
+                        if (dialogContext.mounted) Navigator.pop(dialogContext);
+                      } catch (_) {
+                        setDialogState(() => saving = false);
+                        if (dialogContext.mounted) {
+                          ScaffoldMessenger.of(dialogContext).showSnackBar(
+                            const SnackBar(content: Text('Could not add lead. Please try again.')),
+                          );
+                        }
+                      }
+                    },
+              child: saving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Add'),
+            ),
+          ],
+        ),
+      ),
+    ).whenComplete(() {
+      nameController.dispose();
+      phoneController.dispose();
+      emailController.dispose();
+      notesController.dispose();
+    });
   }
 
   @override
@@ -52,7 +149,7 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
           onPressed: widget.onBack,
         ),
         title: Text(
-          'Hot leads',
+          widget.title,
           style: TextStyle(
             color: Theme.of(context).textTheme.bodyLarge?.color,
             fontWeight: FontWeight.bold,
@@ -60,23 +157,23 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: GestureDetector(
-              onTap: widget.onAdd,
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
+          if (widget.leadType == 'hot')
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: GestureDetector(
+                onTap: _showAddLeadDialog,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white, size: 20),
                 ),
-                child: const Icon(Icons.add, color: Colors.white, size: 20),
               ),
             ),
-          ),
-        ],
-      ),
+        ]),
       body: Column(
         children: [
           Container(
@@ -108,7 +205,7 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
           ),
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: LeadService.leadsStream(type: 'hot'),
+              stream: LeadService.leadsStream(type: widget.leadType),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -146,11 +243,13 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
                         Icon(Icons.local_fire_department_outlined,
                             size: 64, color: Colors.grey.shade300),
                         const SizedBox(height: 16),
-                        const Text('No Hot Leads Yet',
+                        Text('No ${widget.title} Yet',
                             style: TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
-                        Text('Tap + to add your first lead.',
+                        Text(widget.leadType == 'hot'
+                            ? 'Tap + to add your first lead.'
+                            : 'Tag a call log to add it here.',
                             style: TextStyle(
                                 fontSize: 13, color: Colors.grey.shade600)),
                       ],
@@ -196,6 +295,7 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
             activeTag: 'Hot leads',
             isConverted: data['converted'] as bool? ?? false,
             notes: notes,
+            isLead: true,
           );
         });
       },

@@ -2,6 +2,8 @@ package com.example.acadeno_crm
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.content.Intent
+import android.net.Uri
 import android.provider.CallLog
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
@@ -85,6 +87,39 @@ class MainActivity : FlutterActivity() {
                     } catch (e: Exception) {
                         result.error("FETCH_ERROR", e.message, null)
                     }
+                }
+                "openDialer" -> {
+                    val phone = call.argument<String>("phone")?.trim().orEmpty()
+                    if (phone.isEmpty()) {
+                        result.error("INVALID_PHONE", "Phone number is empty", null)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${Uri.encode(phone)}")))
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("DIALER_ERROR", e.message, null)
+                    }
+                }
+                "openWhatsApp" -> {
+                    val rawPhone = call.argument<String>("phone").orEmpty()
+                    val phone = rawPhone.replace(Regex("[^0-9]"), "")
+                    if (phone.isEmpty()) {
+                        result.error("INVALID_PHONE", "Phone number is empty", null)
+                        return@setMethodCallHandler
+                    }
+                    val uri = Uri.parse("https://wa.me/$phone")
+                    try {
+                        startActivity(Intent(Intent.ACTION_VIEW, uri).setPackage("com.whatsapp"))
+                    } catch (_: Exception) {
+                        try {
+                            startActivity(Intent(Intent.ACTION_VIEW, uri))
+                        } catch (e: Exception) {
+                            result.error("WHATSAPP_ERROR", e.message, null)
+                            return@setMethodCallHandler
+                        }
+                    }
+                    result.success(true)
                 }
                 else -> result.notImplemented()
             }

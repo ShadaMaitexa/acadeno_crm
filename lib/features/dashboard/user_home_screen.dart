@@ -9,7 +9,6 @@ import '../auth/logout_screen.dart';
 import '../call_log/call_logs_screen.dart';
 import '../call_log/call_details_screen.dart';
 import '../lead/hot_leads_screen.dart';
-import '../lead/add_leads_screen.dart';
 import 'user_profile_screen.dart';
 
 class UserHomeScreen extends StatefulWidget {
@@ -21,8 +20,7 @@ class UserHomeScreen extends StatefulWidget {
 
 class _UserHomeScreenState extends State<UserHomeScreen> {
   int _currentIndex = 2;
-  bool _showHotLeads = false;
-  bool _showAddLead = false;
+  String? _selectedLeadQueue;
   String _userName = 'User';
   int _hotLeadsCount = 0;
 
@@ -152,9 +150,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     iconColor: AppColors.hotLeads,
                     iconBg: const Color(0xFFFFF0E6),
                     badgeCount: count > 0 ? count : null,
-                    isActive: _showHotLeads, // Highlight when pressed before transition
+                    isActive: _selectedLeadQueue == 'hot',
                     onTap: () {
-                      setState(() => _showHotLeads = true);
+                      setState(() => _selectedLeadQueue = 'hot');
                     },
                   ),
                   HomeMenuCard(
@@ -163,7 +161,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     icon: Icons.person_outline,
                     iconColor: AppColors.followUps,
                     iconBg: const Color(0xFFE6F7F5),
-                    onTap: () {},
+                    isActive: _selectedLeadQueue == 'follow_up',
+                    onTap: () => setState(() => _selectedLeadQueue = 'follow_up'),
                   ),
                   HomeMenuCard(
                     title: 'Reminders',
@@ -171,7 +170,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     icon: Icons.access_time,
                     iconColor: AppColors.reminders,
                     iconBg: const Color(0xFFF3EBE9),
-                    onTap: () {},
+                    isActive: _selectedLeadQueue == 'reminder',
+                    onTap: () => setState(() => _selectedLeadQueue = 'reminder'),
                   ),
                   HomeMenuCard(
                     title: 'College visits',
@@ -208,15 +208,11 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           onLogTap: (log) => setState(() => _selectedLog = log),
         );
       case 2:
-        if (_showAddLead) {
-          return AddLeadsScreen(
-            onBack: () => setState(() => _showAddLead = false),
-          );
-        }
-        if (_showHotLeads) {
+        if (_selectedLeadQueue != null) {
           return HotLeadsScreen(
-            onBack: () => setState(() => _showHotLeads = false),
-            onAdd: () => setState(() => _showAddLead = true),
+            onBack: () => setState(() => _selectedLeadQueue = null),
+            leadType: _selectedLeadQueue!,
+            title: _leadQueueTitle(_selectedLeadQueue!),
           );
         }
         return _buildHomeBody();
@@ -253,8 +249,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                 _selectedLog = null;
               }
               if (index == 2) {
-                _showHotLeads = false;
-                _showAddLead = false;
+                _selectedLeadQueue = null;
                 _selectedLog = null;
               }
             });
@@ -283,5 +278,16 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       ),
       body: _buildBody(),
     );
+  }
+
+  String _leadQueueTitle(String type) {
+    switch (type) {
+      case 'follow_up':
+        return 'Follow ups';
+      case 'reminder':
+        return 'Reminders';
+      default:
+        return 'Hot leads';
+    }
   }
 }

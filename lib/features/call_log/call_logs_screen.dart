@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/call_log_service.dart';
 import '../../core/services/device_call_log_service.dart';
+import '../../core/services/lead_service.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 String _extractCallLogNumber(CallLogEntry entry) => entry.number;
@@ -12,15 +13,17 @@ String _extractCallLogNumber(CallLogEntry entry) => entry.number;
 // ─── Data Model ──────────────────────────────────────────────────────────────
 
 class CallLogItem {
-  final String id; // Firestore doc id (empty for device-only logs)
+  String id; // Firestore doc id (empty for device-only logs)
   final String name;
   final String phoneNumber;
   final String dateTime;
   final String duration;
   final String callType; // 'outgoing' | 'answered' | 'missed'
+  final int timestamp;
   String? activeTag;
-  final bool? isConverted;  // Firestore 'converted' field
+  bool? isConverted;  // Firestore 'converted' field
   final String? notes;      // Firestore 'notes' field
+  final bool isLead;
 
   CallLogItem({
     this.id = '',
@@ -29,20 +32,29 @@ class CallLogItem {
     required this.dateTime,
     required this.duration,
     required this.callType,
+    this.timestamp = 0,
     this.activeTag,
     this.isConverted,
     this.notes,
+    this.isLead = false,
   });
 
-  factory CallLogItem.fromDevice(CallLogEntry e, {String? savedTag}) {
+  factory CallLogItem.fromDevice(
+    CallLogEntry e, {
+    String? savedId,
+    String? savedTag,
+    bool? savedConverted,
+  }) {
     return CallLogItem(
-      id: '',
+      id: savedId ?? '',
       name: e.name.isNotEmpty ? e.name : 'Unknown',
       phoneNumber: e.number,
       dateTime: e.date,
       duration: e.duration,
       callType: e.type,
+      timestamp: e.timestamp,
       activeTag: savedTag,
+      isConverted: savedConverted,
     );
   }
 }
@@ -134,12 +146,38 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   Future<void> _loadDeviceLogs() async {
     if (mounted) setState(() => _loadingLogs = true);
 
-    final entries = await DeviceCallLogService.getCallLogs();
+    final results = await Future.wait([
+      DeviceCallLogService.getCallLogs(),
+      CallLogService.deletedDeviceLogKeys(),
+      CallLogService.deviceLogStates(),
+    ]);
+    final entries = results[0] as List<CallLogEntry>;
+    final deletedKeys = results[1] as Set<String>;
+    final savedStates = results[2] as Map<String, Map<String, dynamic>>;
 
    
-    final items = entries.map((e) {
+    final items = entries.where((e) {
+      return !deletedKeys.contains(CallLogService.deviceLogKey(
+        phone: e.number,
+        timestamp: e.timestamp,
+        duration: e.duration,
+        callType: e.type,
+      ));
+    }).map((e) {
       final phone = _extractCallLogNumber(e);
-      return CallLogItem.fromDevice(e, savedTag: _tagCache[phone]);
+      final key = CallLogService.deviceLogKey(
+        phone: e.number,
+        timestamp: e.timestamp,
+        duration: e.duration,
+        callType: e.type,
+      );
+      final saved = savedStates[key];
+      return CallLogItem.fromDevice(
+        e,
+        savedId: saved?['id'] as String?,
+        savedTag: saved?['tag'] as String? ?? _tagCache[phone],
+        savedConverted: saved?['converted'] as bool?,
+      );
     }).toList();
     if (mounted) {
       setState(() {
@@ -150,42 +188,70 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   }
 
   Future<void> _updateTag(CallLogItem log, String? newTag) async {
-    // Optimistic UI update
+    final previousTag = log.activeTag;
     setState(() => log.activeTag = newTag);
 
-    // If the log already has a Firestore ID, update in place
-    if (log.id.isNotEmpty) {
-      await CallLogService.updateTag(log.id, newTag);
-      return;
-    }
-
-    // Otherwise: save the full call log to Firestore first, then update the tag
-    final docId = await CallLogService.addCallLog(
-      name: log.name,
+    final deviceKey = CallLogService.deviceLogKey(
       phone: log.phoneNumber,
-      dateTime: log.dateTime,
+      timestamp: log.timestamp,
       duration: log.duration,
       callType: log.callType,
-      tag: newTag,
     );
 
-    // Cache the tag by phone number for future loads
-    _tagCache[log.phoneNumber] = newTag;
-
-    // Update the log object with the new Firestore id (mutate via setState)
-    final idx = _deviceLogs.indexOf(log);
-    if (idx != -1 && mounted) {
-      setState(() {
-        _deviceLogs[idx] = CallLogItem(
-          id: docId,
+    try {
+      if (newTag == null) {
+        await LeadService.removeCallLogLead(deviceKey);
+      } else {
+        await LeadService.moveCallLogToLead(
+          sourceCallKey: deviceKey,
           name: log.name,
-          phoneNumber: log.phoneNumber,
+          phone: log.phoneNumber,
           dateTime: log.dateTime,
           duration: log.duration,
           callType: log.callType,
-          activeTag: newTag,
+          type: _leadTypeForTag(newTag),
         );
-      });
+      }
+
+      // If the log already has a Firestore ID, update in place.
+      if (log.id.isNotEmpty) {
+        await CallLogService.updateTag(log.id, newTag);
+        return;
+      }
+
+      // Otherwise: save the full call log to Firestore first.
+      final docId = await CallLogService.addCallLog(
+        name: log.name,
+        phone: log.phoneNumber,
+        dateTime: log.dateTime,
+        duration: log.duration,
+        callType: log.callType,
+        tag: newTag,
+        converted: log.isConverted ?? false,
+        deviceLogKey: deviceKey,
+      );
+
+      _tagCache[log.phoneNumber] = newTag;
+
+      // Update the log object with the new Firestore id.
+      log.id = docId;
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => log.activeTag = previousTag);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not move this call log. Please try again.')),
+      );
+    }
+  }
+
+  String _leadTypeForTag(String tag) {
+    switch (tag) {
+      case 'Follow ups':
+        return 'follow_up';
+      case 'Reminders':
+        return 'reminder';
+      default:
+        return 'hot';
     }
   }
 
@@ -270,16 +336,8 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   }
 
   Future<void> _deleteSelected() async {
-    // Collect Firestore IDs for selected items that have one
-    final toDelete = _selectedIndexes
-        .map((i) => _deviceLogs[i])
-        .where((log) => log.id.isNotEmpty)
-        .map((log) => log.id)
-        .toList();
-
-    if (toDelete.isNotEmpty) {
-      await CallLogService.deleteLogs(toDelete);
-    }
+    final selectedLogs = _selectedIndexes.map((i) => _deviceLogs[i]).toList();
+    await _deleteLogs(selectedLogs);
 
     // Remove all selected from local list (highest index first to keep indexes valid)
     final sortedIndexes = _selectedIndexes.toList()..sort((a, b) => b.compareTo(a));
@@ -290,6 +348,33 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
       _selectedIndexes.clear();
       _selectionMode = false;
     });
+  }
+
+  Future<void> _deleteLogs(List<CallLogItem> logs) async {
+    final firestoreIds = logs.where((log) => log.id.isNotEmpty).map((log) => log.id);
+    final deviceKeys = logs.map((log) => CallLogService.deviceLogKey(
+          phone: log.phoneNumber,
+          timestamp: log.timestamp,
+          duration: log.duration,
+          callType: log.callType,
+        ));
+    await Future.wait([
+      CallLogService.markDeviceLogsDeleted(deviceKeys),
+      CallLogService.deleteLogs(firestoreIds.toList()),
+    ]);
+  }
+
+  Future<void> _openContactAction(CallLogItem log, bool whatsapp) async {
+    final opened = whatsapp
+        ? await DeviceCallLogService.openWhatsApp(log.phoneNumber)
+        : await DeviceCallLogService.openDialer(log.phoneNumber);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(whatsapp
+            ? 'Unable to open WhatsApp for this number.'
+            : 'Unable to open the phone dialer.'),
+      ));
+    }
   }
 
   void _showSIMSelectionDialog() {
@@ -406,25 +491,37 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
             ListTile(
               leading: const Icon(Icons.phone),
               title: const Text('Call Contact'),
-              onTap: () => Navigator.pop(ctx),
+              onTap: () {
+                Navigator.pop(ctx);
+                _openContactAction(log, false);
+              },
             ),
             ListTile(
               leading: const Icon(Icons.message_outlined),
-              title: const Text('Send Message'),
-              onTap: () => Navigator.pop(ctx),
+              title: const Text('Open WhatsApp'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _openContactAction(log, true);
+              },
             ),
-            if (log.id.isNotEmpty)
-              ListTile(
+            ListTile(
                 leading: Icon(LucideIcons.trash2, color: Colors.red),
                 title: const Text('Delete Log',
                     style: TextStyle(color: Colors.red)),
                 onTap: () async {
                   Navigator.pop(ctx);
-                  await CallLogService.deleteLog(log.id);
-                  setState(() => _deviceLogs.remove(log));
+                  try {
+                    await _deleteLogs([log]);
+                    if (mounted) setState(() => _deviceLogs.remove(log));
+                  } catch (_) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Could not delete this call log. Please try again.')),
+                      );
+                    }
+                  }
                 },
-              ),
-          ],
+         ) ],
         ),
       ),
     );
