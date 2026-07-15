@@ -38,6 +38,26 @@ class CallLogEntry {
       );
 }
 
+class SimCardInfo {
+  final int slotIndex;
+  final String carrierName;
+  final String phoneNumber;
+
+  const SimCardInfo({
+    required this.slotIndex,
+    required this.carrierName,
+    required this.phoneNumber,
+  });
+
+  factory SimCardInfo.fromMap(Map<dynamic, dynamic> map) => SimCardInfo(
+        slotIndex: map['slotIndex'] as int? ?? 0,
+        carrierName: map['carrierName'] as String? ?? '',
+        phoneNumber: map['phoneNumber'] as String? ?? '',
+      );
+
+  String get label => 'SIM ${slotIndex + 1}${carrierName.isEmpty ? '' : ' ($carrierName)'}';
+}
+
 class DeviceCallLogService {
   static const _channel = MethodChannel('com.acadeno.crm/call_logs');
 
@@ -79,6 +99,21 @@ class DeviceCallLogService {
           .map(CallLogEntry.fromMap)
           .toList();
     } on PlatformException catch (_) {
+      return [];
+    }
+  }
+
+  /// Returns the active SIM subscriptions and their carrier-provided numbers.
+  /// Some carriers do not expose a line number; those are reported as unavailable.
+  static Future<List<SimCardInfo>> getActiveSimCards() async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return [];
+    try {
+      final raw = await _channel.invokeMethod<List<dynamic>>('getActiveSimCards') ?? [];
+      return raw
+          .cast<Map<dynamic, dynamic>>()
+          .map(SimCardInfo.fromMap)
+          .toList();
+    } on PlatformException {
       return [];
     }
   }

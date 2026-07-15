@@ -56,6 +56,12 @@ class AdminService {
     });
   }
 
+  /// Sends the user a secure Firebase password-reset link. Firebase Auth does
+  /// not expose existing passwords to administrators or client applications.
+  static Future<void> sendPasswordReset(String email) async {
+    await _auth.sendPasswordResetEmail(email: email.trim());
+  }
+
   /// Set status to 'offline' (deactivate)
   static Future<void> deactivateUser(String uid) async {
     await _db.collection('users').doc(uid).update({'status': 'offline'});

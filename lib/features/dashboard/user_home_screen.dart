@@ -22,7 +22,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   int _currentIndex = 2;
   String? _selectedLeadQueue;
   String _userName = 'User';
-  int _hotLeadsCount = 0;
 
   @override
   void initState() {
@@ -87,9 +86,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        // Open drawer or do nothing if logo is tapped
-                      },
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const UserProfileScreen()),
+                      ),
                       child: Container(
                         width: 40,
                         height: 40,
@@ -134,12 +133,6 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
           child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
             stream: LeadService.leadsStream(type: 'hot'),
             builder: (context, snapshot) {
-              final count = snapshot.data?.docs.length ?? 0;
-              if (count != _hotLeadsCount && mounted) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) setState(() => _hotLeadsCount = count);
-                });
-              }
               return ListView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                 children: [
@@ -148,8 +141,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     subtitle: 'Prospects ready to close',
                     icon: Icons.local_fire_department,
                     iconColor: AppColors.hotLeads,
-                    iconBg: const Color(0xFFFFF0E6),
-                    badgeCount: count > 0 ? count : null,
+                    iconBg: Colors.transparent,
                     isActive: _selectedLeadQueue == 'hot',
                     onTap: () {
                       setState(() => _selectedLeadQueue = 'hot');
@@ -158,7 +150,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   HomeMenuCard(
                     title: 'Follow ups',
                     subtitle: 'Leads waiting on a replay',
-                    icon: Icons.person_outline,
+                    icon: Icons.event_repeat_outlined,
                     iconColor: AppColors.followUps,
                     iconBg: const Color(0xFFE6F7F5),
                     isActive: _selectedLeadQueue == 'follow_up',
@@ -179,7 +171,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     icon: Icons.account_balance,
                     iconColor: const Color(0xFF37474F),
                     iconBg: const Color(0xFFECEFF1),
-                    onTap: () {},
+                    onTap: () => setState(() => _currentIndex = 4),
                   ),
                 ],
               );
@@ -219,7 +211,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       case 3:
         return _buildPlaceholder('Tasks');
       case 4:
-        return const UserProfileScreen();
+        return _buildPlaceholder('College visits');
       default:
         return _buildHomeBody();
     }
@@ -229,9 +221,12 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+      bottomNavigationBar: ClipPath(
+        clipper: BottomNavCurveClipper(),
+        child: Container(
+          padding: const EdgeInsets.only(top: 14),
+          decoration: BoxDecoration(
+          color: Colors.white,
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
@@ -272,8 +267,9 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.task_alt_outlined), label: 'Tasks'),
             BottomNavigationBarItem(
-                icon: Icon(Icons.person_outline), label: 'Profile'),
+                icon: Icon(Icons.account_balance_outlined), label: 'Visits'),
           ],
+        ),
         ),
       ),
       body: _buildBody(),

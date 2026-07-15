@@ -76,7 +76,8 @@ class CallLogsScreen extends StatefulWidget {
 }
 
 class _CallLogsScreenState extends State<CallLogsScreen> {
-  String _selectedSIM = 'SIM 1';
+  List<SimCardInfo> _simCards = const [];
+  SimCardInfo? _selectedSIM;
   CallLogPermissionStatus _permStatus = CallLogPermissionStatus.unknown;
   bool _loadingLogs = false;
   List<CallLogItem> _deviceLogs = [];
@@ -131,6 +132,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
 
     // If already granted, load immediately
     if (status == CallLogPermissionStatus.granted) {
+      _loadSimCards();
       _loadDeviceLogs();
     }
   }
@@ -139,8 +141,23 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     final status = await DeviceCallLogService.requestPermission();
     if (mounted) setState(() => _permStatus = status);
     if (status == CallLogPermissionStatus.granted) {
+      _loadSimCards();
       _loadDeviceLogs();
     }
+  }
+
+  Future<void> _loadSimCards() async {
+    final cards = await DeviceCallLogService.getActiveSimCards();
+    if (!mounted) return;
+    setState(() {
+      _simCards = cards;
+      _selectedSIM = cards.isEmpty
+          ? null
+          : cards.firstWhere(
+              (card) => card.slotIndex == _selectedSIM?.slotIndex,
+              orElse: () => cards.first,
+            );
+    });
   }
 
   Future<void> _loadDeviceLogs() async {
@@ -392,9 +409,12 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 24),
-              _buildSIMOption(ctx, 'SIM 1 (BSNL)', 'BSNL', '+91 7558004685'),
-              const SizedBox(height: 12),
-              _buildSIMOption(ctx, 'SIM 2 (Airtel)', 'Airtel', '+91 9308004875'),
+              if (_simCards.isEmpty)
+                const Text('No active SIM cards were found.'),
+              ..._simCards.expand((sim) => [
+                    _buildSIMOption(ctx, sim),
+                    const SizedBox(height: 12),
+                  ]),
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
@@ -421,11 +441,11 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     );
   }
 
-  Widget _buildSIMOption(BuildContext ctx, String label, String network, String phone) {
-    final isSelected = _selectedSIM == '${label.split(' ')[0]} ${label.split(' ')[1]}';
+  Widget _buildSIMOption(BuildContext ctx, SimCardInfo sim) {
+    final isSelected = _selectedSIM?.slotIndex == sim.slotIndex;
     return GestureDetector(
       onTap: () {
-        setState(() => _selectedSIM = '${label.split(' ')[0]} ${label.split(' ')[1]}');
+        setState(() => _selectedSIM = sim);
         Navigator.pop(ctx);
       },
       child: Container(
@@ -447,11 +467,11 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
+                  Text(sim.label,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: AppColors.textDark)),
-                  Text(phone,
+                  Text(sim.phoneNumber.isEmpty ? 'Number unavailable from carrier' : sim.phoneNumber,
                       style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                 ],
               ),
@@ -559,23 +579,11 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
               icon: Icon(Icons.sim_card_outlined, color: Theme.of(context).iconTheme.color),
               onPressed: _showSIMSelectionDialog,
             ),
-          if (!_selectionMode && _permStatus == CallLogPermissionStatus.granted)
-            IconButton(
-              icon: Icon(Icons.refresh, color: Theme.of(context).iconTheme.color),
-              onPressed: _loadDeviceLogs,
-              tooltip: 'Refresh',
-            ),
           if (!_selectionMode && _permStatus == CallLogPermissionStatus.granted && _deviceLogs.isNotEmpty)
             IconButton(
               icon: Icon(LucideIcons.trash2, color: Colors.red.shade400),
               tooltip: 'Delete',
               onPressed: _toggleSelectionMode,
-            ),
-          if (_selectionMode && selectedCount > 0)
-            IconButton(
-              icon: Icon(LucideIcons.trash2, color: Colors.red),
-              tooltip: 'Delete selected',
-              onPressed: _showClearHistoryDialog,
             ),
         ],
       ),
@@ -630,7 +638,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                     children: [
                       const TextSpan(text: 'Showing logs for: '),
                       TextSpan(
-                        text: _selectedSIM,
+                        text: _selectedSIM?.label ?? 'No SIM detected',
                         style: const TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold),
@@ -671,6 +679,18 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                       fontWeight: FontWeight.w600, fontSize: 14),
                 ),
                 const Spacer(),
+                IconButton(
+                  icon: Icon(
+                    LucideIcons.trash2,
+                    color: _selectedIndexes.isEmpty
+                        ? Colors.grey.shade400
+                        : Colors.red,
+                  ),
+                  tooltip: 'Delete selected',
+                  onPressed: _selectedIndexes.isEmpty
+                      ? null
+                      : _showClearHistoryDialog,
+                ),
                 Text(
                   '${_selectedIndexes.length} / ${_deviceLogs.length}',
                   style: TextStyle(
@@ -691,11 +711,15 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                           AlwaysStoppedAnimation<Color>(AppColors.primary)))
               : _deviceLogs.isEmpty
                   ? _buildEmptyLogs()
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _deviceLogs.length,
-                      itemBuilder: (context, index) =>
-                          _buildCallLogCard(_deviceLogs[index]),
+                  : RefreshIndicator(
+                      onRefresh: _loadDeviceLogs,
+                      child: ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(16),
+                        itemCount: _deviceLogs.length,
+                        itemBuilder: (context, index) =>
+                            _buildCallLogCard(_deviceLogs[index]),
+                      ),
                     ),
         ),
       ],
@@ -926,8 +950,14 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   }
 
   Widget _buildEmptyLogs() {
-    return Center(
-      child: Column(
+    return RefreshIndicator(
+      onRefresh: _loadDeviceLogs,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.55,
+            child: Center(child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.phone_missed, size: 64, color: Colors.grey.shade300),
@@ -938,11 +968,11 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).textTheme.bodyMedium?.color)),
           const SizedBox(height: 8),
-          TextButton.icon(
-            onPressed: _loadDeviceLogs,
-            icon: const Icon(Icons.refresh, color: AppColors.primary),
-            label: const Text('Refresh',
-                style: TextStyle(color: AppColors.primary)),
+          Text(
+            'Pull down to refresh',
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+          ),
+        ])),
           ),
         ],
       ),

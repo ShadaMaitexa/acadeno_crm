@@ -341,7 +341,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     final phoneCtrl = TextEditingController(text: data['phone'] ?? '');
     // Password should not be read from Firestore. Most apps don’t store it there.
     // Leave empty so user can optionally type a new one.
-    final passCtrl = TextEditingController(text: '');
 
     String? selectedRole = data['role'];
     if (roles.isNotEmpty && !roles.contains(selectedRole)) {
@@ -438,31 +437,41 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       },
                     ),
                     const SizedBox(height: 12),
-                    _buildDialogTextField(
-                      controller: passCtrl,
-                      hintText: 'Password',
-                      icon: Icons.lock_outline,
-                      suffix: IconButton(
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'Passwords are protected and cannot be displayed. Send a reset link to let this user choose a new password.',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.lock_reset_outlined),
+                        label: const Text('Send password reset'),
                         onPressed: () async {
-                          await Clipboard.setData(
-                              ClipboardData(text: passCtrl.text));
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Password copied'),
-                                duration: Duration(seconds: 1),
-                              ),
-                            );
+                          final email = emailCtrl.text.trim();
+                          if (email.isEmpty) return;
+                          try {
+                            await AdminService.sendPasswordReset(email);
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                const SnackBar(content: Text('Password reset email sent')),
+                              );
+                            }
+                          } catch (e) {
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                SnackBar(content: Text('Could not send reset email: $e')),
+                              );
+                            }
                           }
                         },
-                        icon: const Icon(Icons.copy_outlined,
-                            color: Colors.black, size: 20),
-                        splashRadius: 20,
                       ),
-                      obscureText: true,
-                      validator: (v) => (v == null || v.length < 6)
-                          ? 'Min 6 characters'
-                          : null,
                     ),
                     const SizedBox(height: 12),
                     if (roles.isNotEmpty)

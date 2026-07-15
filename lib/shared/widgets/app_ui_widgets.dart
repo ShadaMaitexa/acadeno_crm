@@ -287,7 +287,8 @@ class HomeMenuCard extends StatelessWidget {
                   ),
                 ),
               ),
-            Container(
+            if (iconBg != Colors.transparent)
+              Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
@@ -295,7 +296,13 @@ class HomeMenuCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: iconColor, size: 24),
-            ),
+              )
+            else
+              SizedBox(
+                width: 44,
+                height: 44,
+                child: Icon(icon, color: iconColor, size: 24),
+              ),
           ],
         ),
       ),

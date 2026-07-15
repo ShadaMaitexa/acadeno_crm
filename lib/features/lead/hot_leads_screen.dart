@@ -25,6 +25,8 @@ class HotLeadsScreen extends StatefulWidget {
 class _HotLeadsScreenState extends State<HotLeadsScreen> {
   final _searchController = TextEditingController();
   String _query = '';
+  bool _selectionMode = false;
+  final Set<String> _selectedLeadIds = {};
 
   // When non-null, show CallDetailsScreen for this lead
   CallLogItem? _selectedLead;
@@ -33,6 +35,26 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _deleteSelectedLeads() async {
+    final ids = _selectedLeadIds.toList();
+    if (ids.isEmpty) return;
+    try {
+      await Future.wait(ids.map(LeadService.deleteLead));
+      if (mounted) {
+        setState(() {
+          _selectedLeadIds.clear();
+          _selectionMode = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not delete selected leads. Please try again.')),
+        );
+      }
+    }
   }
 
   void _showAddLeadDialog() {
@@ -157,7 +179,22 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
           ),
         ),
         actions: [
-          if (widget.leadType == 'hot')
+          if (!_selectionMode)
+            IconButton(
+              icon: Icon(LucideIcons.trash2, color: Colors.red.shade400),
+              tooltip: 'Delete leads',
+              onPressed: () => setState(() => _selectionMode = true),
+            ),
+          if (_selectionMode)
+            IconButton(
+              icon: Icon(Icons.close, color: Theme.of(context).iconTheme.color),
+              tooltip: 'Cancel selection',
+              onPressed: () => setState(() {
+                _selectionMode = false;
+                _selectedLeadIds.clear();
+              }),
+            ),
+          if (!_selectionMode && widget.leadType == 'hot')
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: GestureDetector(
@@ -176,33 +213,6 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
         ]),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: Checkbox(
-                        value: false,
-                        onChanged: (v) {},
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4)),
-                        side: BorderSide(color: Colors.grey.shade400),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    const Text('Select All',
-                        style: TextStyle(fontWeight: FontWeight.w500)),
-                  ],
-                ),
-                Icon(LucideIcons.trash2, color: Colors.red.shade400),
-              ],
-            ),
-          ),
           Expanded(
             child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
               stream: LeadService.leadsStream(type: widget.leadType),
@@ -257,13 +267,42 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
                   );
                 }
 
-                return ListView.builder(
+                final allSelected = docs.isNotEmpty &&
+                    docs.every((doc) => _selectedLeadIds.contains(doc.id));
+                return Column(
+                  children: [
+                    if (_selectionMode)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                        child: Row(children: [
+                          Checkbox(
+                            value: allSelected,
+                            onChanged: (selected) => setState(() {
+                              if (selected == true) {
+                                _selectedLeadIds.addAll(docs.map((doc) => doc.id));
+                              } else {
+                                _selectedLeadIds.removeAll(docs.map((doc) => doc.id));
+                              }
+                            }),
+                          ),
+                          Text(allSelected ? 'Deselect All' : 'Select All'),
+                          const Spacer(),
+                          if (_selectedLeadIds.isNotEmpty)
+                            IconButton(
+                              icon: Icon(LucideIcons.trash2, color: Colors.red),
+                              onPressed: _deleteSelectedLeads,
+                            ),
+                        ]),
+                      ),
+                    Expanded(child: ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
                     final doc = docs[index];
                     return _buildLeadCard(context, doc.id, doc.data());
                   },
+                    )),
+                  ],
                 );
               },
             ),
@@ -282,8 +321,15 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
     final duration = data['duration'] as String? ?? '';
     final callType = data['callType'] as String? ?? 'outgoing';
 
+    final isSelected = _selectedLeadIds.contains(id);
     return GestureDetector(
       onTap: () {
+        if (_selectionMode) {
+          setState(() => isSelected
+              ? _selectedLeadIds.remove(id)
+              : _selectedLeadIds.add(id));
+          return;
+        }
         setState(() {
           _selectedLead = CallLogItem(
             id: id,
@@ -303,7 +349,9 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: isSelected
+            ? AppColors.primary.withValues(alpha: 0.08)
+            : Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -319,6 +367,15 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (_selectionMode) ...[
+                Checkbox(
+                  value: isSelected,
+                  onChanged: (_) => setState(() => isSelected
+                      ? _selectedLeadIds.remove(id)
+                      : _selectedLeadIds.add(id)),
+                ),
+                const SizedBox(width: 8),
+              ],
               Container(
                 width: 44,
                 height: 44,

@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.content.Intent
 import android.net.Uri
 import android.provider.CallLog
+import android.telephony.SubscriptionManager
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -86,6 +87,28 @@ class MainActivity : FlutterActivity() {
                         result.success(logs)
                     } catch (e: Exception) {
                         result.error("FETCH_ERROR", e.message, null)
+                    }
+                }
+                "getActiveSimCards" -> {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE)
+                        != PackageManager.PERMISSION_GRANTED
+                    ) {
+                        result.error("PERMISSION_DENIED", "READ_PHONE_STATE permission not granted", null)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        val subscriptionManager = getSystemService(SubscriptionManager::class.java)
+                        val subscriptions = subscriptionManager.activeSubscriptionInfoList ?: emptyList()
+                        val sims = subscriptions.map { info ->
+                            mapOf(
+                                "slotIndex" to info.simSlotIndex,
+                                "carrierName" to info.carrierName?.toString().orEmpty(),
+                                "phoneNumber" to info.number.orEmpty(),
+                            )
+                        }
+                        result.success(sims)
+                    } catch (e: Exception) {
+                        result.error("SIM_FETCH_ERROR", e.message, null)
                     }
                 }
                 "openDialer" -> {

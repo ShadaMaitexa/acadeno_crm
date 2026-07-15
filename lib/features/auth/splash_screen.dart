@@ -79,7 +79,7 @@ class _SplashScreenState extends State<SplashScreen>
             colors: [
              
             
-              Colors.white,  Color(0xFF5BA3E0), Color(0xFF3582CB),
+              Colors.white,  Colors.white, Color(0xFF3582CB),
             ],
             stops: [0.0, 0.55, 1.0],
           ),

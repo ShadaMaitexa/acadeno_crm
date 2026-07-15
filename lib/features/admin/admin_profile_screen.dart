@@ -79,27 +79,38 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
   }
 
   Future<void> _copy(String text) async {
-    try {
-      await Clipboard.setData(
-        ClipboardData(text: text),
+    if (text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nothing to copy')),
       );
-    } catch (_) {}
+      return;
+    }
 
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).clearSnackBars();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text("Copied to clipboard"),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.primary,
-        duration: const Duration(seconds: 1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+    try {
+      await Clipboard.setData(ClipboardData(text: text));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..clearSnackBars()
+        ..showSnackBar(
+          SnackBar(
+            content: const Text('Copied to clipboard'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: AppColors.primary,
+            duration: const Duration(seconds: 1),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to copy. Please try again.'),
+          backgroundColor: Colors.red,
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override
@@ -244,7 +255,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
   Widget _buildInfoField({
     required IconData icon,
     required TextEditingController controller,
-    required VoidCallback onCopy,
+    required Future<void> Function() onCopy,
     bool obscure = false,
   }) {
     return Container(
@@ -284,14 +295,10 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
               ),
             ),
           ),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onCopy,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              child: const Icon(Icons.copy_outlined,
-                  color: Colors.black, size: 18),
-            ),
+          IconButton(
+            onPressed: onCopy,
+            tooltip: 'Copy',
+            icon: const Icon(Icons.copy_outlined, color: Colors.black, size: 18),
           ),
         ],
       ),
