@@ -99,4 +99,20 @@ class AuthService {
     final doc = await _db.collection('users').doc(uid).get();
     return doc.data();
   }
+
+  /// Updates the editable details of the currently signed-in user's profile.
+  static Future<void> updateCurrentUserProfile({
+    required String name,
+    required String phone,
+  }) async {
+    final uid = currentUser?.uid;
+    if (uid == null) {
+      throw StateError('No signed-in user found.');
+    }
+
+    await _db.collection('users').doc(uid).update({
+      'name': name.trim(),
+      'phone': phone.trim(),
+    });
+  }
 }

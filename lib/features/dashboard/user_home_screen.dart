@@ -117,12 +117,14 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  'Hi, $_userName',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                Center(
+                  child: Text(
+                    'Hi, $_userName',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
