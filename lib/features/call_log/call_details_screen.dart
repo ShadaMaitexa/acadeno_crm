@@ -50,6 +50,41 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
     }
   }
 
+  Future<void> _saveDetails() async {
+    final notes = _notesController.text.trim();
+    try {
+      if (widget.log.isLead) {
+        await LeadService.updateLead(widget.log.id, {'notes': notes});
+      } else if (widget.log.id.isNotEmpty) {
+        await CallLogService.updateNotes(widget.log.id, notes);
+      } else {
+        widget.log.id = await CallLogService.addCallLog(
+          name: widget.log.name,
+          phone: widget.log.phoneNumber,
+          dateTime: widget.log.dateTime,
+          duration: widget.log.duration,
+          callType: widget.log.callType,
+          tag: widget.log.activeTag,
+          converted: _isConverted,
+          deviceLogKey: CallLogService.deviceLogKey(
+            phone: widget.log.phoneNumber,
+            timestamp: widget.log.timestamp,
+            duration: widget.log.duration,
+            callType: widget.log.callType,
+          ),
+        );
+        await CallLogService.updateNotes(widget.log.id, notes);
+      }
+      widget.log.notes = notes;
+      if (mounted) widget.onBack();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Unable to save call details. Please try again.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Determine icon based on call type, matching the main list
@@ -380,10 +415,7 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate back or perform save action
-                    widget.onBack();
-                  },
+                  onPressed: _saveDetails,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,

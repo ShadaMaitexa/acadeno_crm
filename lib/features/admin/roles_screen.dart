@@ -167,6 +167,7 @@ class _RolesScreenState extends State<RolesScreen> {
     return TextFormField(
       controller: controller,
       validator: validator,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       maxLines: maxLines,
       decoration: InputDecoration(
         hintText: hintText,

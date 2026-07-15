@@ -52,6 +52,10 @@ class CallLogService {
     });
   }
 
+  static Future<void> updateNotes(String logId, String notes) async {
+    await _db.collection('call_logs').doc(logId).update({'notes': notes.trim()});
+  }
+
   /// Returns the saved Firestore record for each device-call key. This lets
   /// device logs retain their CRM fields after the screen is reopened.
   static Future<Map<String, Map<String, dynamic>>> deviceLogStates() async {
@@ -67,6 +71,7 @@ class CallLogService {
             'id': doc.id,
             'converted': doc.data()['converted'] as bool? ?? false,
             'tag': doc.data()['tag'] as String?,
+            'notes': doc.data()['notes'] as String? ?? '',
           },
     };
   }

@@ -50,6 +50,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         obscureText: obscureText,
         keyboardType: keyboardType,
         validator: validator,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: const TextStyle(fontSize: 14, color: Colors.black),
@@ -141,6 +142,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       icon: Icons.alternate_email_rounded,
                       suffix: IconButton(
                         onPressed: () async {
+                          if (emailCtrl.text.trim().isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Enter an email address before copying')),
+                            );
+                            return;
+                          }
                           await Clipboard.setData(
                               ClipboardData(text: emailCtrl.text));
                           if (mounted) {
@@ -186,6 +193,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                       icon: Icons.lock_outline,
                       suffix: IconButton(
                         onPressed: () async {
+                          if (passCtrl.text.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Enter a password before copying')),
+                            );
+                            return;
+                          }
                           await Clipboard.setData(
                               ClipboardData(text: passCtrl.text));
                           if (mounted) {

@@ -22,7 +22,7 @@ class CallLogItem {
   final int timestamp;
   String? activeTag;
   bool? isConverted;  // Firestore 'converted' field
-  final String? notes;      // Firestore 'notes' field
+  String? notes;      // Firestore 'notes' field
   final bool isLead;
 
   CallLogItem({
@@ -44,6 +44,7 @@ class CallLogItem {
     String? savedId,
     String? savedTag,
     bool? savedConverted,
+    String? savedNotes,
   }) {
     return CallLogItem(
       id: savedId ?? '',
@@ -55,6 +56,7 @@ class CallLogItem {
       timestamp: e.timestamp,
       activeTag: savedTag,
       isConverted: savedConverted,
+      notes: savedNotes,
     );
   }
 }
@@ -194,6 +196,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
         savedId: saved?['id'] as String?,
         savedTag: saved?['tag'] as String? ?? _tagCache[phone],
         savedConverted: saved?['converted'] as bool?,
+        savedNotes: saved?['notes'] as String?,
       );
     }).toList();
     if (mounted) {

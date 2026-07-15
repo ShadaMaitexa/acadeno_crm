@@ -169,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           // Main Content
@@ -234,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         buildFormField(
                           context: context,
                           controller: _emailController,
-                          hint: '', // Removed hint to match design
+                          hint: 'Email address',
                           borderRadius: 50,
                           keyboardType: TextInputType.emailAddress,
                           fillColor: Colors.white,
@@ -261,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         buildFormField(
                           context: context,
                           controller: _passwordController,
-                          hint: '',
+                          hint: 'Password',
                           borderRadius: 50,
                           obscureText: _obscurePassword,
                           fillColor: Colors.white,
@@ -312,7 +312,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
 
           // Bottom White Upward Curve
-          Positioned(
+          if (MediaQuery.viewInsetsOf(context).bottom == 0)
+            Positioned(
             left: 0,
             right: 0,
             bottom: 0,

@@ -80,8 +80,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
   }
 
-  void _copy(String value) {
-    Clipboard.setData(ClipboardData(text: value));
+  Future<void> _copy(String value) async {
+    if (value.trim().isEmpty || value == '—' || value == 'â€”') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nothing to copy')),
+      );
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: value));
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Copied to clipboard'),
