@@ -656,29 +656,40 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                     ),
                   ),
                 ),
-                Positioned(
-                  bottom: -30,
-                  left: 24,
-                  right: 24,
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child:
-                              _buildStatCard(total.toString(), 'Total Staff')),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: _buildStatCard(
-                              active.toString(), 'Active', Colors.green)),
-                      const SizedBox(width: 10),
-                      Expanded(
-                          child: _buildStatCard(
-                              offline.toString(), 'Offline', Colors.orange)),
-                    ],
-                  ),
-                ),
+Positioned(
+  top: 150,
+  left: 24,
+  right: 24,
+  child: SizedBox(
+    height: 90,
+    child: Row(
+      children: [
+        Expanded(
+          child: _buildStatCard(total.toString(), 'Total Staff'),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildStatCard(
+            active.toString(),
+            'Active',
+            Colors.green,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _buildStatCard(
+            offline.toString(),
+            'Offline',
+            Colors.orange,
+          ),
+        ),
+      ],
+    ),
+  ),
+),
               ],
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 80),
             Expanded(
               child: docs.isEmpty
                   ? _buildEmptyStaff()
@@ -701,7 +712,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   Widget _buildStatCard(String value, String label, [Color? dotColor]) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),

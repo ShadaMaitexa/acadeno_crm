@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:js_util' if (dart.library.io) 'dart:io' as js_util;
 import '../../core/constants/app_colors.dart';
 import '../../core/services/admin_service.dart';
 import '../../core/services/auth_service.dart';
@@ -80,42 +77,29 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       if (mounted) setState(() => _saving = false);
     }
   }
-
-  Future<void> _copy(String text) async {
-    try {
-      if (kIsWeb) {
-        // Call the global JS function defined in web/index.html
-        // This uses navigator.clipboard.writeText() directly in the
-        // user-gesture context, which works reliably on Chrome.
-        final promise = js_util.callMethod(
-          js_util.globalThis,
-          'copyToClipboard',
-          [text],
-        );
-        await js_util.promiseToFuture<void>(promise);
-      } else {
-        await Clipboard.setData(ClipboardData(text: text));
-      }
-    } catch (_) {
-      // Fallback: attempt standard clipboard even if JS call failed
-      try {
-        await Clipboard.setData(ClipboardData(text: text));
-      } catch (_) {}
-    }
-
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Copied to clipboard'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        backgroundColor: AppColors.primary,
-        duration: const Duration(seconds: 1),
-      ),
+Future<void> _copy(String text) async {
+  try {
+    await Clipboard.setData(
+      ClipboardData(text: text),
     );
-  }
+  } catch (_) {}
 
+  if (!mounted) return;
+
+  ScaffoldMessenger.of(context).clearSnackBars();
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: const Text("Copied to clipboard"),
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: AppColors.primary,
+      duration: const Duration(seconds: 1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ),
+  );
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
