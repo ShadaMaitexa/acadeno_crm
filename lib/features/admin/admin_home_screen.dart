@@ -7,6 +7,7 @@ import '../../core/services/admin_service.dart';
 import '../../core/services/role_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
 import '../auth/logout_screen.dart';
+import '../../shared/widgets/logout_icon.dart';
 import 'admin_profile_screen.dart';
 import 'labels_screen.dart';
 import 'roles_screen.dart';
@@ -681,8 +682,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
                             ),
                             GestureDetector(
                               onTap: _logout,
-                              child: const Icon(Icons.exit_to_app,
-                                  color: Colors.white, size: 28),
+                              child: const LogoutIcon(size: 28),
                             ),
                           ],
                         ),

@@ -362,51 +362,43 @@ class _CallDetailsScreenState extends State<CallDetailsScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Notes Card
-              Container(
+              // The field itself fills the notes area; no oversized wrapper.
+              SizedBox(
                 height: 120,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+                child: TextField(
+                  controller: _notesController,
+                  expands: true,
+                  maxLines: null,
+                  minLines: null,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: InputDecoration(
+                    hintText: 'Enter additional notes (optional)',
+                    hintStyle: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.black38,
                     ),
-                  ],
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: Icon(Icons.insert_drive_file_outlined,
-                          color: Theme.of(context)
-                              .iconTheme
-                              .color
-                              ?.withOpacity(0.5),
-                          size: 24),
+                    prefixIcon: Icon(
+                      Icons.insert_drive_file_outlined,
+                      color: Theme.of(context).iconTheme.color?.withOpacity(0.5),
+                      size: 24,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextField(
-                        controller: _notesController,
-                        maxLines: null,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter additional notes(optional)',
-                          hintStyle: TextStyle(
-                            fontSize: 13,
-                            color: Colors.black38,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.only(top: 14),
-                        ),
-                      ),
+                    alignLabelWithHint: true,
+                    filled: true,
+                    fillColor: Theme.of(context).cardColor,
+                    contentPadding: const EdgeInsets.fromLTRB(0, 16, 16, 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
                     ),
-                  ],
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: AppColors.primary),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 24),

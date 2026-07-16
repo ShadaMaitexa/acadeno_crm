@@ -5,6 +5,7 @@ import '../../core/services/admin_service.dart';
 import '../../core/services/auth_service.dart';
 import '../../shared/widgets/app_ui_widgets.dart';
 import '../../shared/widgets/curve_clippers.dart';
+import '../../shared/widgets/logout_icon.dart';
 import '../auth/logout_screen.dart';
 
 class AdminProfileScreen extends StatefulWidget {
@@ -157,8 +158,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                             color: Colors.white, size: 28),
                         GestureDetector(
                           onTap: () => showLogoutConfirmationDialog(context),
-                          child: const Icon(Icons.exit_to_app,
-                              color: Colors.white, size: 28),
+                          child: const LogoutIcon(size: 28),
                         ),
                       ],
                     ),

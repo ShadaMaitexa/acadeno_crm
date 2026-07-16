@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../shared/widgets/logout_icon.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/auth_service.dart';
 import 'login_screen.dart';
@@ -229,7 +230,7 @@ class _LogoutScreenState extends State<LogoutScreen> {
                       shape: BoxShape.circle,
                     ),
                     child:
-                        const Icon(Icons.logout, color: Colors.white, size: 22),
+                        const LogoutIcon(size: 22),
                   ),
                 ],
               ),

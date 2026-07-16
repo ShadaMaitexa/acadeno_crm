@@ -5,6 +5,7 @@ import '../../core/services/auth_service.dart';
 import '../../core/services/lead_service.dart';
 import '../../shared/widgets/app_ui_widgets.dart';
 import '../../shared/widgets/curve_clippers.dart';
+import '../../shared/widgets/logout_icon.dart';
 import '../auth/logout_screen.dart';
 import '../call_log/call_logs_screen.dart';
 import '../call_log/call_details_screen.dart';
@@ -87,21 +88,28 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                   children: [
                     GestureDetector(
                       onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const UserProfileScreen()),
+                        MaterialPageRoute(
+                            builder: (_) => const UserProfileScreen()),
                       ),
                       child: Container(
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.dark ?
-                           Colors.grey.shade800 : Colors.white,
+                          color: Theme.of(context).brightness == Brightness.dark
+                              ? Colors.grey.shade800
+                              : Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
                           child: Text(
-                            _userName.isNotEmpty ? _userName[0].toUpperCase() : 'U',
+                            _userName.isNotEmpty
+                                ? _userName[0].toUpperCase()
+                                : 'U',
                             style: TextStyle(
-                              color: Theme.of(context).brightness == Brightness.dark ? Colors.white : AppColors.primary,
+                              color: Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.white
+                                  : AppColors.primary,
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Georgia',
@@ -112,8 +120,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     ),
                     GestureDetector(
                       onTap: _logout,
-                      child: const Icon(Icons.exit_to_app,
-                          color: Colors.white, size: 28),
+                      child: const LogoutIcon(size: 40),
                     ),
                   ],
                 ),
@@ -157,7 +164,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     iconColor: AppColors.followUps,
                     iconBg: Colors.transparent,
                     isActive: _selectedLeadQueue == 'follow_up',
-                    onTap: () => setState(() => _selectedLeadQueue = 'follow_up'),
+                    onTap: () =>
+                        setState(() => _selectedLeadQueue = 'follow_up'),
                   ),
                   HomeMenuCard(
                     title: 'Reminders',
@@ -166,7 +174,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                     iconColor: AppColors.reminders,
                     iconBg: Colors.transparent,
                     isActive: _selectedLeadQueue == 'reminder',
-                    onTap: () => setState(() => _selectedLeadQueue = 'reminder'),
+                    onTap: () =>
+                        setState(() => _selectedLeadQueue = 'reminder'),
                   ),
                   HomeMenuCard(
                     title: 'College visits',
@@ -261,7 +270,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
               BottomNavigationBarItem(
                   icon: Icon(Icons.task_alt_outlined), label: 'Tasks'),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.account_balance_outlined), label: 'Visits'),
+                  icon: Icon(Icons.location_on_outlined), label: 'Visits'),
             ],
           ),
         ),

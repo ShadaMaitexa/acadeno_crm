@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import 'curve_clippers.dart';
+import 'logout_icon.dart';
 
 /// Blue curved admin header with profile + logout icons and greeting.
 class AdminHeader extends StatelessWidget {
@@ -46,8 +47,7 @@ class AdminHeader extends StatelessWidget {
                     ),
                     GestureDetector(
                       onTap: onLogoutTap,
-                      child: const Icon(Icons.exit_to_app,
-                          color: Colors.white, size: 28),
+                      child: const LogoutIcon(size: 28),
                     ),
                   ],
                 ),

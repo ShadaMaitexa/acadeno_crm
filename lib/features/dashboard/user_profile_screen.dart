@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/auth_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
+import '../../shared/widgets/logout_icon.dart';
 import '../auth/logout_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
@@ -195,7 +196,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
                 IconButton(
                   onPressed: () => showLogoutConfirmationDialog(context),
-                  icon: const Icon(Icons.logout_outlined, color: Colors.white, size: 24),
+                  icon: const LogoutIcon(),
                   tooltip: 'Log out',
                 ),
               ],

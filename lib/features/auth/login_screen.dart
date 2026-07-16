@@ -263,7 +263,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _passwordController,
                           hint: 'Password',
                           borderRadius: 50,
-                          icon: Icons.key_outlined,
                           obscureText: _obscurePassword,
                           fillColor: Colors.white,
                           suffix: IconButton(

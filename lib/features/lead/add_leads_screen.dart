@@ -77,19 +77,23 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).cardColor,
+        backgroundColor: AppColors.background,
+        surfaceTintColor: AppColors.background,
+        elevation: 0,
+        centerTitle: true,
+        toolbarHeight: 56,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).iconTheme.color),
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF374151), size: 20),
           onPressed: widget.onBack,
         ),
-        title: Text(
+        title: const Text(
           'Add leads',
           style: TextStyle(
-            color: Theme.of(context).textTheme.bodyLarge?.color,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
+            color: Color(0xFF111827),
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
           ),
         ),
       ),
@@ -97,14 +101,14 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding: const EdgeInsets.fromLTRB(28, 4, 28, 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(
                   child: Container(
-                    width: 90,
-                    height: 90,
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
                       color: AppColors.primary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
@@ -115,32 +119,40 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                               _avatarLetter,
                               style: const TextStyle(
                                 color: AppColors.primary,
-                                fontSize: 36,
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           )
                         : const Icon(Icons.person,
-                            size: 50, color: Colors.white),
+                            size: 32, color: Colors.white),
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 20),
                 buildFormField(
                   context: context,
                   controller: _nameController,
                   hint: 'Name',
                   icon: Icons.person_outline,
+                  fillColor: Colors.white,
+                  borderRadius: 7,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? 'Name is required'
                       : null,
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 buildFormField(
                   context: context,
                   controller: _phoneController,
                   hint: 'Phone',
                   icon: Icons.phone_outlined,
                   keyboardType: TextInputType.phone,
+                  fillColor: Colors.white,
+                  borderRadius: 7,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   validator: (v) {
                     if (v == null || v.trim().isEmpty) {
                       return 'Phone is required';
@@ -151,27 +163,57 @@ class _AddLeadsScreenState extends State<AddLeadsScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 buildFormField(
                   context: context,
                   controller: _emailController,
                   hint: 'Email',
                   icon: Icons.alternate_email_rounded,
                   keyboardType: TextInputType.emailAddress,
+                  fillColor: Colors.white,
+                  borderRadius: 7,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 buildFormField(
                   context: context,
                   controller: _noteController,
                   hint: 'Enter additional notes (optional)',
                   icon: Icons.notes_outlined,
                   maxLines: 4,
+                  fillColor: Colors.white,
+                  borderRadius: 7,
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                 ),
-                const SizedBox(height: 32),
-                buildPrimaryButton(
-                  label: 'Save',
-                  loading: _loading,
-                  onPressed: _save,
+                const SizedBox(height: 18),
+                SizedBox(
+                  height: 42,
+                  child: ElevatedButton(
+                    onPressed: _loading ? null : _save,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                    ),
+                    child: _loading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Save',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                  ),
                 ),
                 const SizedBox(height: 24),
               ],

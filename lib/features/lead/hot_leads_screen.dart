@@ -4,6 +4,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/services/lead_service.dart';
 import '../call_log/call_logs_screen.dart';
 import '../call_log/call_details_screen.dart';
+import 'add_leads_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class HotLeadsScreen extends StatefulWidget {
@@ -30,6 +31,7 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
 
   // When non-null, show CallDetailsScreen for this lead
   CallLogItem? _selectedLead;
+  bool _showAddLeadForm = false;
 
   @override
   void dispose() {
@@ -57,101 +59,6 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
     }
   }
 
-  void _showAddLeadDialog() {
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController();
-    final phoneController = TextEditingController();
-    final emailController = TextEditingController();
-    final notesController = TextEditingController();
-    var saving = false;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Add Lead'),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Name'),
-                    validator: (value) => value == null || value.trim().isEmpty
-                        ? 'Name is required'
-                        : null,
-                  ),
-                  TextFormField(
-                    controller: phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(labelText: 'Phone'),
-                    validator: (value) => value == null || value.trim().isEmpty
-                        ? 'Phone is required'
-                        : null,
-                  ),
-                  TextFormField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email (optional)'),
-                  ),
-                  TextFormField(
-                    controller: notesController,
-                    maxLines: 3,
-                    decoration: const InputDecoration(labelText: 'Notes (optional)'),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: saving ? null : () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: saving
-                  ? null
-                  : () async {
-                      if (!formKey.currentState!.validate()) return;
-                      setDialogState(() => saving = true);
-                      try {
-                        await LeadService.addLead(
-                          name: nameController.text,
-                          phone: phoneController.text,
-                          email: emailController.text,
-                          notes: notesController.text,
-                        );
-                        if (dialogContext.mounted) Navigator.pop(dialogContext);
-                      } catch (_) {
-                        setDialogState(() => saving = false);
-                        if (dialogContext.mounted) {
-                          ScaffoldMessenger.of(dialogContext).showSnackBar(
-                            const SnackBar(content: Text('Could not add lead. Please try again.')),
-                          );
-                        }
-                      }
-                    },
-              child: saving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Add'),
-            ),
-          ],
-        ),
-      ),
-    ).whenComplete(() {
-      nameController.dispose();
-      phoneController.dispose();
-      emailController.dispose();
-      notesController.dispose();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // Show call details if a lead is selected
@@ -159,6 +66,12 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
       return CallDetailsScreen(
         log: _selectedLead!,
         onBack: () => setState(() => _selectedLead = null),
+      );
+    }
+
+    if (_showAddLeadForm) {
+      return AddLeadsScreen(
+        onBack: () => setState(() => _showAddLeadForm = false),
       );
     }
 
@@ -198,7 +111,7 @@ class _HotLeadsScreenState extends State<HotLeadsScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 16),
               child: GestureDetector(
-                onTap: _showAddLeadDialog,
+                onTap: () => setState(() => _showAddLeadForm = true),
                 child: Container(
                   width: 36,
                   height: 36,

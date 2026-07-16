@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/services/role_service.dart';
 import '../../shared/widgets/curve_clippers.dart';
+import '../../shared/widgets/logout_icon.dart';
 import 'admin_profile_screen.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
@@ -287,8 +288,7 @@ class _RolesScreenState extends State<RolesScreen> {
                               ),
                               GestureDetector(
                                 onTap: widget.onLogout,
-                                child: const Icon(Icons.exit_to_app,
-                                    color: Colors.white, size: 28),
+                                child: const LogoutIcon(size: 28),
                               ),
                             ],
                           ),
