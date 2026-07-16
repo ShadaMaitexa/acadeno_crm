@@ -93,7 +93,8 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).brightness == Brightness.dark ? Colors.grey.shade800 : Colors.white,
+                          color: Theme.of(context).brightness == Brightness.dark ?
+                           Colors.grey.shade800 : Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: Center(
