@@ -256,9 +256,10 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     bool obscure = false,
   }) {
     return Container(
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: Color(0xFFEAF1FA),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(50),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),

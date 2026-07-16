@@ -226,52 +226,43 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
       bottomNavigationBar: ClipPath(
         clipper: BottomNavCurveClipper(),
         child: Container(
-          padding: const EdgeInsets.only(top: 14),
-          decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-              if (index == 1) {
-                _selectedLog = null;
-              }
-              if (index == 2) {
-                _selectedLeadQueue = null;
-                _selectedLog = null;
-              }
-            });
-          },
-          backgroundColor: Theme.of(context).cardColor,
-          elevation: 0,
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: AppColors.primary,
-          unselectedItemColor: Colors.grey.shade400,
-          selectedLabelStyle:
-              const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
-          unselectedLabelStyle: const TextStyle(fontSize: 11),
-          items: const [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.phone_outlined), label: 'Call logs'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined), label: 'Home'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.task_alt_outlined), label: 'Tasks'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.account_balance_outlined), label: 'Visits'),
-          ],
-        ),
+          padding: const EdgeInsets.only(top: 12),
+          child: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+                if (index == 1) {
+                  _selectedLog = null;
+                }
+                if (index == 2) {
+                  _selectedLeadQueue = null;
+                  _selectedLog = null;
+                }
+              });
+            },
+            backgroundColor: Colors.white,
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: AppColors.primary,
+            unselectedItemColor: Colors.grey.shade400,
+            selectedLabelStyle:
+                const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+            unselectedLabelStyle: const TextStyle(fontSize: 11),
+            items: const [
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.dashboard_outlined), label: 'Dashboard'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.phone_outlined), label: 'Call logs'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.home_outlined), label: 'Home'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.task_alt_outlined), label: 'Tasks'),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.account_balance_outlined), label: 'Visits'),
+            ],
+          ),
         ),
       ),
       body: _buildBody(),
